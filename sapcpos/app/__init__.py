@@ -21,9 +21,18 @@ def create_app():
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-change-me')
 
-    db_url = os.getenv('DATABASE_URL', f"sqlite:///{os.path.join(base_dir, 'sapcpos.db')}")
-    if db_url.startswith('postgres://'):
-        db_url = db_url.replace('postgres://', 'postgresql://', 1)
+    # ── Turso (production on Vercel) ──────────────────────────────────────────
+    turso_url   = os.getenv('TURSO_DATABASE_URL', '')
+    turso_token = os.getenv('TURSO_AUTH_TOKEN', '')
+
+    if turso_url and turso_token:
+        db_url = f"{turso_url}?authToken={turso_token}"
+    else:
+        # Local dev fallback — use /tmp (writable on all platforms)
+        db_url = os.getenv('DATABASE_URL', 'sqlite:////tmp/sacpos.db')
+        if db_url.startswith('postgres://'):
+            db_url = db_url.replace('postgres://', 'postgresql://', 1)
+
     app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
