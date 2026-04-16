@@ -1,0 +1,19 @@
+{% extends "partials/base.html" %}
+{% block title %}No Record — SAPCPOS{% endblock %}
+{% block page_title %}Account Setup{% endblock %}
+
+{% block content %}
+<div style="max-width:480px;margin:60px auto;text-align:center;">
+  <div class="card" style="padding:48px 32px;">
+    <div style="font-size:56px;margin-bottom:16px;">📋</div>
+    <h2 style="font-size:20px;font-weight:800;margin-bottom:8px;">No Student Record Linked</h2>
+    <p class="text-muted" style="font-size:14px;line-height:1.6;margin-bottom:24px;">
+      Your account has been created but no student record has been linked yet.
+      Please contact your administrator to link your account to a student record.
+    </p>
+    <div class="d-flex gap-12" style="justify-content:center;">
+      <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost">Log Out</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

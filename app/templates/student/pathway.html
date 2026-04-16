@@ -1,0 +1,131 @@
+{% extends "partials/base.html" %}
+{% block title %}My Pathway — SAPCPOS{% endblock %}
+{% block page_title %}Academic Pathway{% endblock %}
+
+{% block content %}
+<!-- Algorithm note -->
+<div class="card mb-24" style="border-left:3px solid var(--primary);">
+  <div class="d-flex align-center gap-12">
+    <div style="font-size:32px;">🗺️</div>
+    <div>
+      <div class="card-title">Dijkstra's Shortest Path Algorithm</div>
+      <p class="text-muted" style="font-size:13px;margin-top:4px;line-height:1.6;">
+        Your academic pathway is computed using
+        <strong style="color:var(--text);">Dijkstra's algorithm</strong> on a curriculum graph
+        of 14 courses. Edge weights represent transition difficulty — a lower total cost means
+        a smoother academic journey. Set your interests in
+        <a href="{{ url_for('student.profile') }}">My Profile</a> to customize your pathway.
+      </p>
+    </div>
+  </div>
+</div>
+
+{% if pathways %}
+  {% for track, data in pathways.items() %}
+  <div class="card mb-24">
+    <div class="card-header">
+      <span class="card-title">
+        {{ '🔬' if track=='STEM' else '💼' if track=='Business' else '🎨' }}
+        {{ track }} Track
+      </span>
+      <span class="badge badge-info">Cost: {{ data.cost }}</span>
+    </div>
+
+    <!-- Path visualization -->
+    <div class="pathway-steps mb-24" style="flex-wrap:wrap;">
+      {% for i in range(data.path | length) %}
+        {% set course = data.path[i] %}
+        <div class="pathway-step {{ 'start' if i==0 else 'goal' if i==data.path|length-1 else '' }}"
+             style="flex-direction:column;align-items:flex-start;padding:12px 16px;min-width:110px;">
+          <div style="font-size:10px;text-transform:uppercase;letter-spacing:.5px;
+                      color:{{ 'var(--primary)' if i==0 else 'var(--green)' if i==data.path|length-1 else 'var(--muted)' }};">
+            {{ 'Start' if i==0 else 'Goal' if i==data.path|length-1 else 'Step ' ~ i }}
+          </div>
+          <div class="fw-bold" style="margin-top:2px;">{{ course }}</div>
+          <div style="font-size:11px;color:var(--faint);margin-top:2px;">
+            {{ course_descriptions.get(course, '') | truncate(30) }}
+          </div>
+        </div>
+        {% if not loop.last %}
+          <div style="display:flex;align-items:center;padding:0 4px;">
+            <span class="pathway-arrow" style="font-size:20px;">→</span>
+          </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+
+    <!-- Step details -->
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Course</th>
+            <th>Description</th>
+            <th>Role</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for i, course in enumerate(data.path) %}
+          <tr>
+            <td>
+              <div class="rank-badge {{ 'rank-1' if i==0 else 'rank-n' }}" style="background:{{ 'rgba(59,127,255,.2)' if i==0 else 'rgba(34,197,94,.2)' if i==data.path|length-1 else 'var(--surface2)' }};">
+                {{ i + 1 }}
+              </div>
+            </td>
+            <td class="fw-bold">{{ course }}</td>
+            <td class="text-muted" style="font-size:13px;">{{ course_descriptions.get(course, '—') }}</td>
+            <td>
+              {% if i == 0 %}
+                <span class="badge badge-info">Entry Point</span>
+              {% elif i == data.path | length - 1 %}
+                <span class="badge badge-advanced">Goal / Capstone</span>
+              {% else %}
+                <span class="badge badge-stable">Intermediate</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% endfor %}
+
+{% else %}
+  <div class="card" style="text-align:center;padding:48px;">
+    <div style="font-size:48px;margin-bottom:16px;">🎯</div>
+    <div class="fw-bold" style="font-size:18px;margin-bottom:8px;">No Interests Set</div>
+    <p class="text-muted" style="margin-bottom:20px;">
+      Set your academic interests to generate your personalized Dijkstra pathway.
+    </p>
+    <a href="{{ url_for('student.profile') }}" class="btn btn-primary">
+      Set Interests →
+    </a>
+  </div>
+{% endif %}
+
+<!-- All tracks reference -->
+<div class="card">
+  <div class="card-title mb-16">📖 Full Curriculum Graph (14 Courses)</div>
+  <div class="form-grid-3" style="gap:12px;">
+    {% for track_name, start in track_starts.items() %}
+    <div style="background:var(--surface2);border-radius:var(--radius-sm);padding:14px;">
+      <div class="fw-bold mb-16" style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);">
+        {{ '🔬' if track_name=='STEM' else '💼' if track_name=='Business' else '🎨' }}
+        {{ track_name }}
+      </div>
+      {% for course, desc in course_descriptions.items() %}
+        {% if (track_name == 'STEM'     and course in ['Math','Physics','Chem','Bio','CompSci','Research']) or
+              (track_name == 'Business' and course in ['Econ','Accounting','Management','Finance','Marketing']) or
+              (track_name == 'Arts'     and course in ['FilLit','Philosophy','Communications','CreativeArts','Research']) %}
+        <div style="font-size:12px;padding:4px 0;border-bottom:1px solid var(--border);color:var(--muted);">
+          <span class="fw-bold" style="color:var(--text);">{{ course }}</span>
+        </div>
+        {% endif %}
+      {% endfor %}
+    </div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,107 @@
+{% extends "partials/base.html" %}
+{% block title %}Analytics — SAPCPOS{% endblock %}
+{% block page_title %}Analytics{% endblock %}
+
+{% block head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+{% endblock %}
+
+{% block content %}
+<!-- Summary stats -->
+<div class="stats-grid mb-24">
+  <div class="stat-card stat-total">
+    <span class="label">Total Students</span>
+    <span class="value text-primary">{{ total }}</span>
+  </div>
+  <div class="stat-card">
+    <span class="label">Avg GPA</span>
+    <span class="value">{{ avg_gpa }}</span>
+    <span class="sub">Philippine scale</span>
+  </div>
+  <div class="stat-card">
+    <span class="label">Avg Attendance</span>
+    <span class="value">{{ avg_att }}%</span>
+  </div>
+  <div class="stat-card stat-risk">
+    <span class="label">At-Risk Count</span>
+    <span class="value text-red">{{ dist['At-Risk'] }}</span>
+    <span class="sub">Need intervention</span>
+  </div>
+</div>
+
+<!-- Charts row 1 -->
+<div class="d-flex gap-12 mb-24" style="flex-wrap:wrap;">
+  <div class="card" style="flex:1;min-width:280px;">
+    <div class="card-title mb-16">📊 Classification Distribution</div>
+    <canvas id="chart-dist" height="220"></canvas>
+    <div style="display:flex;gap:12px;margin-top:12px;justify-content:center;font-size:12px;">
+      <span><span style="color:var(--green);">●</span> Advanced: {{ dist.Advanced }}</span>
+      <span><span style="color:var(--yellow);">●</span> Average: {{ dist.Average }}</span>
+      <span><span style="color:var(--red);">●</span> At-Risk: {{ dist['At-Risk'] }}</span>
+    </div>
+  </div>
+
+  <div class="card" style="flex:1;min-width:280px;">
+    <div class="card-title mb-16">📉 Academic Trend Distribution</div>
+    <canvas id="chart-trend" height="220"></canvas>
+  </div>
+
+  <div class="card" style="flex:1;min-width:280px;">
+    <div class="card-title mb-16">📚 GPA Distribution</div>
+    <canvas id="chart-histo" height="220"></canvas>
+  </div>
+</div>
+
+<!-- Scatter chart -->
+<div class="card mb-24">
+  <div class="card-title mb-16">🔵 Attendance vs GPA Scatter</div>
+  <p class="text-muted mb-16" style="font-size:12px;">
+    Each dot is a student. X-axis = attendance %, Y-axis = GPA (lower is better).
+    <span style="color:var(--green);">● Advanced</span>
+    <span style="color:var(--yellow);margin-left:8px;">● Average</span>
+    <span style="color:var(--red);margin-left:8px;">● At-Risk</span>
+  </p>
+  <canvas id="chart-scatter" height="300"></canvas>
+</div>
+
+<!-- Data table -->
+<div class="card">
+  <div class="card-title mb-16">📋 Raw Student Data</div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th><th>GPA</th><th>Attendance</th>
+          <th>Failures</th><th>Trend</th><th>Classification</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for s in students %}
+        <tr>
+          <td>{{ s.full_name }}</td>
+          <td>{{ s.gpa }}</td>
+          <td>{{ s.attendance }}%</td>
+          <td>{{ s.failures }}</td>
+          <td><span class="badge badge-{{ s.trend }}">{{ s.trend|title }}</span></td>
+          <td>
+            {% set cls = s.classification %}
+            <span class="badge badge-{{ 'advanced' if cls=='Advanced' else 'average' if cls=='Average' else 'at-risk' }}">
+              {{ cls }}
+            </span>
+          </td>
+        </tr>
+        {% else %}
+        <tr><td colspan="6" class="text-muted text-center" style="padding:24px;">No data.</td></tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  window.chartDistData  = {{ dist | tojson }};
+  window.chartTrendData = {{ trend_dist | tojson }};
+  window.chartScatterData = {{ scatter | safe }};
+  window.chartHistoData = {{ buckets | safe }};
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "partials/base.html" %}
+{% block title %}Activity Logs — SAPCPOS{% endblock %}
+{% block page_title %}Activity Audit Log{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">📋 All System Activity</span>
+    <span class="text-muted" style="font-size:12px;">Page {{ logs.page }} of {{ logs.pages }}</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Timestamp</th>
+          <th>Actor</th>
+          <th>Action</th>
+          <th>Detail</th>
+          <th>IP</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for log in logs.items %}
+        <tr>
+          <td class="text-muted" style="font-size:12px;white-space:nowrap;">
+            {{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+          </td>
+          <td>
+            {% if log.actor %}
+              <div class="fw-bold" style="font-size:13px;">{{ log.actor.full_name }}</div>
+              <div class="text-muted" style="font-size:11px;">{{ log.actor.role | title }}</div>
+            {% else %}
+              <span class="text-muted">—</span>
+            {% endif %}
+          </td>
+          <td>
+            <span class="badge badge-info" style="font-size:11px;">
+              {{ log.action.replace('_', ' ') }}
+            </span>
+          </td>
+          <td class="text-muted" style="font-size:13px;">{{ log.detail or '—' }}</td>
+          <td class="text-muted" style="font-size:12px;">{{ log.ip_address or '—' }}</td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="5" class="text-muted text-center" style="padding:32px;">No activity logged yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Pagination -->
+  {% if logs.pages > 1 %}
+  <div class="d-flex gap-8 mt-16" style="justify-content:center;flex-wrap:wrap;">
+    {% if logs.has_prev %}
+    <a href="{{ url_for('admin.logs', page=logs.prev_num) }}" class="btn btn-ghost btn-sm">← Prev</a>
+    {% endif %}
+    {% for p in logs.iter_pages(left_edge=1, right_edge=1, left_current=2, right_current=2) %}
+      {% if p %}
+        <a href="{{ url_for('admin.logs', page=p) }}"
+           class="btn {{ 'btn-primary' if p == logs.page else 'btn-ghost' }} btn-sm">{{ p }}</a>
+      {% else %}
+        <span class="text-muted" style="padding:5px;">…</span>
+      {% endif %}
+    {% endfor %}
+    {% if logs.has_next %}
+    <a href="{{ url_for('admin.logs', page=logs.next_num) }}" class="btn btn-ghost btn-sm">Next →</a>
+    {% endif %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

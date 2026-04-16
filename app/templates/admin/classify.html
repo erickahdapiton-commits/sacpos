@@ -1,0 +1,89 @@
+{% extends "partials/base.html" %}
+{% block title %}Classification — {{ student.full_name }}{% endblock %}
+{% block page_title %}Classification Detail{% endblock %}
+
+{% block content %}
+<div style="max-width:680px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">🔍 Decision Tree Result</span>
+      <a href="{{ url_for('admin.students') }}" class="btn btn-ghost btn-sm">← Back</a>
+    </div>
+
+    <!-- Student info -->
+    <div class="d-flex align-center gap-12 mb-24"
+         style="padding:16px;background:var(--surface2);border-radius:var(--radius-sm);">
+      <div class="avatar" style="width:48px;height:48px;font-size:20px;">
+        {{ student.full_name[0].upper() }}
+      </div>
+      <div>
+        <div class="fw-bold" style="font-size:16px;">{{ student.full_name }}</div>
+        <div class="text-muted">{{ student.student_id }} · {{ student.course or 'No course' }}</div>
+      </div>
+    </div>
+
+    <!-- Classification result -->
+    <div class="text-center" style="margin-bottom:28px;">
+      <p class="text-muted" style="margin-bottom:10px;font-size:13px;">Classified as</p>
+      <span class="class-pill {{ classification }}">
+        {% if classification == 'Advanced' %}🌟
+        {% elif classification == 'Average' %}📘
+        {% else %}⚠️{% endif %}
+        {{ classification }}
+      </span>
+    </div>
+
+    <!-- Metrics -->
+    <div class="form-grid-2" style="margin-bottom:24px;">
+      <div style="background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+        <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">GPA</div>
+        <div class="fw-bold" style="font-size:22px;">{{ student.gpa }}</div>
+        <div class="text-muted" style="font-size:11px;">Philippine scale (1.0 = best)</div>
+      </div>
+      <div style="background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+        <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Attendance</div>
+        <div class="fw-bold" style="font-size:22px;">{{ student.attendance }}%</div>
+        <div class="text-muted" style="font-size:11px;">Minimum threshold: 75%</div>
+      </div>
+      <div style="background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+        <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Failures</div>
+        <div class="fw-bold" style="font-size:22px;">{{ student.failures }}</div>
+        <div class="text-muted" style="font-size:11px;">Failed subjects this term</div>
+      </div>
+      <div style="background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+        <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Trend</div>
+        <div class="fw-bold" style="font-size:22px;">
+          {{ '📈' if student.trend=='improving' else '➡️' if student.trend=='stable' else '📉' }}
+        </div>
+        <div class="text-muted" style="font-size:11px;">{{ student.trend | title }}</div>
+      </div>
+    </div>
+
+    <!-- Decision reasons -->
+    <div>
+      <p style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;">
+        Decision Tree Reasoning
+      </p>
+      {% for reason in reasons %}
+      <div class="reason-item">
+        <span class="reason-icon">
+          {% if 'excellent' in reason.lower() or 'no failed' in reason.lower() or '≥90' in reason.lower() %}✅
+          {% elif 'below' in reason.lower() or 'failing' in reason.lower() or 'poor' in reason.lower() or 'high risk' in reason.lower() %}❌
+          {% elif 'declining' in reason.lower() %}📉
+          {% elif 'improving' in reason.lower() %}📈
+          {% else %}ℹ️{% endif %}
+        </span>
+        {{ reason }}
+      </div>
+      {% endfor %}
+    </div>
+
+    <hr class="divider"/>
+    <div class="d-flex gap-12">
+      <a href="{{ url_for('admin.edit_student', student_id=student.id) }}"
+         class="btn btn-primary btn-sm">✏️ Edit Record</a>
+      <a href="{{ url_for('admin.students') }}" class="btn btn-ghost btn-sm">← Students</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

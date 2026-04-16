@@ -1,0 +1,85 @@
+{% extends "partials/base.html" %}
+{% block title %}Rankings — SAPCPOS{% endblock %}
+{% block page_title %}Performance Rankings{% endblock %}
+
+{% block content %}
+<div class="card mb-24">
+  <div class="card-header">
+    <span class="card-title">🏆 GPA Ranking — QuickSort O(n log n)</span>
+    <span class="text-muted" style="font-size:12px;">Sorted by GPA · Lower = Better (Philippine Scale)</span>
+  </div>
+
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Student</th>
+          <th>Course</th>
+          <th>GPA</th>
+          <th>GPA Bar</th>
+          <th>Attendance</th>
+          <th>Trend</th>
+          <th>Classification</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rank, s in ranked %}
+        <tr {% if rank <= 3 %}style="background:rgba(59,127,255,.04)"{% endif %}>
+          <td>
+            <div class="rank-badge {{ 'rank-1' if rank==1 else 'rank-2' if rank==2 else 'rank-3' if rank==3 else 'rank-n' }}">
+              {% if rank == 1 %}🥇
+              {% elif rank == 2 %}🥈
+              {% elif rank == 3 %}🥉
+              {% else %}{{ rank }}{% endif %}
+            </div>
+          </td>
+          <td>
+            <div class="fw-bold">{{ s.full_name }}</div>
+            <div class="text-muted" style="font-size:11px;">{{ s.student_id }}</div>
+          </td>
+          <td class="text-muted">{{ s.course or '—' }}</td>
+          <td>
+            <span class="fw-bold {{ 'text-green' if s.gpa<=1.75 else 'text-yellow' if s.gpa<=2.5 else 'text-red' }}">
+              {{ s.gpa }}
+            </span>
+          </td>
+          <td>
+            <div class="gpa-bar-wrap">
+              <div class="gpa-bar" data-gpa="{{ s.gpa }}"></div>
+            </div>
+          </td>
+          <td>{{ s.attendance }}%</td>
+          <td>
+            <span class="badge badge-{{ s.trend }}">{{ s.trend | title }}</span>
+          </td>
+          <td>
+            {% set cls = s.classification %}
+            <span class="badge badge-{{ 'advanced' if cls=='Advanced' else 'average' if cls=='Average' else 'at-risk' }}">
+              {{ cls }}
+            </span>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="8" class="text-muted text-center" style="padding:32px;">No students to rank yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Algorithm note -->
+<div class="card" style="border-left:3px solid var(--primary);">
+  <div class="card-title mb-16">⚙️ Algorithm: QuickSort</div>
+  <p class="text-muted" style="font-size:13px;line-height:1.6;">
+    Students are ranked using the <strong style="color:var(--text);">QuickSort algorithm</strong>
+    (O(n log n) average time complexity). The algorithm partitions the student list around a pivot
+    GPA value, recursively sorts each partition, and produces a fully sorted ranking.
+    On the Philippine grading scale, <strong style="color:var(--green);">1.0 is the highest (Excellent)</strong>
+    and <strong style="color:var(--red);">5.0 is failing</strong>, so rank #1 is the student with the
+    lowest GPA number.
+  </p>
+</div>
+{% endblock %}

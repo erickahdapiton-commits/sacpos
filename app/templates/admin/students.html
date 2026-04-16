@@ -1,0 +1,104 @@
+{% extends "partials/base.html" %}
+{% block title %}Students — SAPCPOS{% endblock %}
+{% block page_title %}Student Management{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary btn-sm">➕ Add Student</a>
+{% endblock %}
+
+{% block content %}
+<!-- Search & Filter -->
+<form method="GET" action="{{ url_for('admin.students') }}" class="search-bar">
+  <input type="text" name="q" class="form-control"
+         placeholder="Search by name or ID…" value="{{ q }}"/>
+  <select name="classification" class="form-control" style="max-width:160px;">
+    <option value="">All Classifications</option>
+    <option value="Advanced"  {% if filter_class=='Advanced'  %}selected{% endif %}>Advanced</option>
+    <option value="Average"   {% if filter_class=='Average'   %}selected{% endif %}>Average</option>
+    <option value="At-Risk"   {% if filter_class=='At-Risk'   %}selected{% endif %}>At-Risk</option>
+  </select>
+  <button type="submit" class="btn btn-primary btn-sm">Filter</button>
+  {% if q or filter_class %}
+    <a href="{{ url_for('admin.students') }}" class="btn btn-ghost btn-sm">Clear</a>
+  {% endif %}
+</form>
+
+<div class="card">
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Student</th>
+          <th>Course / Year</th>
+          <th>GPA</th>
+          <th>Attendance</th>
+          <th>Failures</th>
+          <th>Trend</th>
+          <th>Classification</th>
+          <th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rank, s in ranked %}
+        <tr>
+          <td>
+            <div class="rank-badge {{ 'rank-1' if rank==1 else 'rank-2' if rank==2 else 'rank-3' if rank==3 else 'rank-n' }}">
+              {{ rank }}
+            </div>
+          </td>
+          <td>
+            <div class="fw-bold">{{ s.full_name }}</div>
+            <div class="text-muted" style="font-size:11px;">{{ s.student_id }}</div>
+          </td>
+          <td>
+            <div>{{ s.course or '—' }}</div>
+            <div class="text-muted" style="font-size:11px;">Year {{ s.year_level }}</div>
+          </td>
+          <td>
+            <div class="fw-bold">{{ s.gpa }}</div>
+            <div class="gpa-bar-wrap mt-4">
+              <div class="gpa-bar" data-gpa="{{ s.gpa }}"></div>
+            </div>
+          </td>
+          <td>{{ s.attendance }}%</td>
+          <td>{{ s.failures }}</td>
+          <td>
+            <span class="badge badge-{{ s.trend }}">{{ s.trend | title }}</span>
+          </td>
+          <td>
+            {% set cls = s.classification %}
+            <span class="badge badge-{{ 'advanced' if cls=='Advanced' else 'average' if cls=='Average' else 'at-risk' }}">
+              {{ cls }}
+            </span>
+          </td>
+          <td>
+            <div class="d-flex gap-8">
+              <a href="{{ url_for('admin.classify_view', student_id=s.id) }}"
+                 class="btn btn-ghost btn-sm" title="Classify">🔍</a>
+              <a href="{{ url_for('admin.edit_student', student_id=s.id) }}"
+                 class="btn btn-ghost btn-sm" title="Edit">✏️</a>
+              <form method="POST"
+                    action="{{ url_for('admin.delete_student', student_id=s.id) }}"
+                    style="display:inline;">
+                <button type="submit" class="btn btn-danger btn-sm"
+                        data-confirm="Delete {{ s.full_name }}? This cannot be undone.">
+                  🗑
+                </button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="9" class="text-muted text-center" style="padding:32px;">
+            No students found.
+            <a href="{{ url_for('admin.add_student') }}">Add one →</a>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

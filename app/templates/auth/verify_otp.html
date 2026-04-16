@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify OTP — SAPCPOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+</head>
+<body>
+<div class="auth-page">
+  <div class="auth-card">
+    <div class="auth-header">
+      <h1>🔐 Verify Email</h1>
+      <p>Enter the 6-digit code sent to<br/><strong>{{ email }}</strong></p>
+    </div>
+    <div class="auth-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">{{ message }}</div>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth.verify_otp') }}">
+        <div class="form-group">
+          <label class="form-label" style="text-align:center;display:block;">One-Time Password</label>
+          <input type="text" name="otp" class="otp-input"
+                 placeholder="000000" maxlength="6" required autofocus
+                 inputmode="numeric" autocomplete="one-time-code"/>
+        </div>
+        <button type="submit" class="btn btn-primary w-full mt-8">
+          Verify →
+        </button>
+      </form>
+
+      <hr class="divider"/>
+
+      <form method="POST" action="{{ url_for('auth.resend_otp') }}">
+        <button type="submit" class="btn btn-ghost w-full">
+          🔄 Resend OTP
+        </button>
+      </form>
+
+      <div class="auth-footer" style="margin-top:12px;">
+        <a href="{{ url_for('auth.login') }}">← Back to Login</a>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

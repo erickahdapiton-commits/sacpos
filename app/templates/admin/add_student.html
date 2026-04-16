@@ -1,0 +1,102 @@
+{% extends "partials/base.html" %}
+{% block title %}Add Student — SAPCPOS{% endblock %}
+{% block page_title %}Add Student{% endblock %}
+
+{% block content %}
+<div style="max-width:800px;">
+  <div class="card">
+    <div class="card-header">
+      <span class="card-title">📝 New Student Record</span>
+      <a href="{{ url_for('admin.students') }}" class="btn btn-ghost btn-sm">← Back</a>
+    </div>
+
+    <form method="POST" action="{{ url_for('admin.add_student') }}">
+
+      <p class="text-muted mb-16" style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;">
+        Basic Information
+      </p>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">Student ID *</label>
+          <input type="text" name="student_id" class="form-control"
+                 placeholder="2024-00001" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Full Name *</label>
+          <input type="text" name="full_name" class="form-control"
+                 placeholder="Juan Dela Cruz" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Email</label>
+          <input type="email" name="email" class="form-control"
+                 placeholder="student@school.edu"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Course / Program</label>
+          <input type="text" name="course" class="form-control"
+                 placeholder="BS Computer Science"/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Year Level</label>
+          <select name="year_level" class="form-control">
+            <option value="1">1st Year</option>
+            <option value="2">2nd Year</option>
+            <option value="3">3rd Year</option>
+            <option value="4">4th Year</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+      <p class="text-muted mb-16" style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;">
+        Academic Metrics
+      </p>
+      <div class="form-grid-2">
+        <div class="form-group">
+          <label class="form-label">GPA (Philippine Scale: 1.0–5.0)</label>
+          <input type="number" name="gpa" class="form-control"
+                 step="0.25" min="1.0" max="5.0" value="1.0" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Attendance (%)</label>
+          <input type="number" name="attendance" class="form-control"
+                 step="0.1" min="0" max="100" value="100" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Number of Failures</label>
+          <input type="number" name="failures" class="form-control"
+                 min="0" value="0" required/>
+        </div>
+        <div class="form-group">
+          <label class="form-label">Academic Trend</label>
+          <select name="trend" class="form-control">
+            <option value="improving">📈 Improving</option>
+            <option value="stable" selected>➡️ Stable</option>
+            <option value="declining">📉 Declining</option>
+          </select>
+        </div>
+      </div>
+
+      <hr class="divider"/>
+      <p class="text-muted mb-16" style="font-size:12px;text-transform:uppercase;letter-spacing:.5px;font-weight:700;">
+        Subject Scores (0–100)
+      </p>
+      <div class="form-grid-4">
+        {% for subj in ['Math','English','Science','Filipino','MAPEH','TLE','Values','Research'] %}
+        <div class="form-group">
+          <label class="form-label">{{ subj }}</label>
+          <input type="number" name="score_{{ subj }}" class="form-control"
+                 min="0" max="100" placeholder="—"/>
+        </div>
+        {% endfor %}
+      </div>
+
+      <hr class="divider"/>
+      <div class="d-flex gap-12">
+        <button type="submit" class="btn btn-primary">✅ Save Student</button>
+        <a href="{{ url_for('admin.students') }}" class="btn btn-ghost">Cancel</a>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}
