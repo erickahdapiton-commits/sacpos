@@ -26,7 +26,9 @@ def create_app():
     turso_token = os.getenv('TURSO_AUTH_TOKEN', '')
 
     if turso_url and turso_token:
-        db_url = f"{turso_url}?authToken={turso_token}"
+        host = turso_url.replace('libsql://', '')
+        db_url = f"sqlite+libsql://{host}?authToken={turso_token}&secure=true"
+
     else:
         # Local dev fallback — use /tmp (writable on all platforms)
         db_url = os.getenv('DATABASE_URL', 'sqlite:////tmp/sacpos.db')

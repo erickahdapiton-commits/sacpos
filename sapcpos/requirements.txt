@@ -9,4 +9,5 @@ bcrypt==4.2.1
 requests==2.32.3
 gunicorn==22.0.0
 itsdangerous==2.2.0
-libsql-experimental==0.0.26
+libsql-experimental==0.0.16
+sqlalchemy-libsql==0.1.0
