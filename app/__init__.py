@@ -76,8 +76,12 @@ def create_app():
 
     # ── Seed DB ───────────────────────────────────────────────────────────────
     with app.app_context():
-        db.create_all()
-        _seed_admin()
+        try:
+            db.create_all()
+            _seed_admin()
+        except Exception as e:
+            import sys
+            print(f"[SACPOS] DB init skipped: {e}", file=sys.stderr)
 
     return app
 
