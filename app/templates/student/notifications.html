@@ -1,0 +1,25 @@
+{% extends "partials/base.html" %}
+{% block title %}Notifications — SAPCPOS{% endblock %}
+{% block page_title %}My Notifications{% endblock %}
+
+{% block content %}
+<div style="max-width:640px;">
+  <div class="card">
+    <div class="card-title mb-16">🔔 Notifications</div>
+    {% for n in notifs_list %}
+    <div class="alert alert-{{ n.type }}" style="margin-bottom:10px;">
+      <div style="flex:1;">
+        <div>{{ n.message }}</div>
+        <div style="font-size:11px;margin-top:4px;opacity:.7;">
+          {{ n.created_at.strftime('%b %d, %Y — %H:%M') }}
+        </div>
+      </div>
+    </div>
+    {% else %}
+    <p class="text-muted text-center" style="padding:32px;">
+      You have no notifications.
+    </p>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

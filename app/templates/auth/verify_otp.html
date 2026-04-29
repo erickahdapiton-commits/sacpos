@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Verify Email — SAPCPOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}"/>
+</head>
+<body>
+<div class="auth-split">
+
+  <!-- Left panel -->
+  <div class="auth-brand">
+    <div class="auth-brand-inner">
+      <div class="brand-logo">
+        <span class="brand-icon">📊</span>
+        <span class="brand-name">SAPCPOS</span>
+      </div>
+      <h2 class="brand-tagline">One step<br/>away.</h2>
+      <p class="brand-sub">We sent a 6-digit verification code to your email. Enter it to complete your registration and access your dashboard.</p>
+      <div class="brand-stats">
+        <div class="brand-stat"><span class="stat-num">6</span><span class="stat-lbl">Digit Code</span></div>
+        <div class="brand-stat"><span class="stat-num">10</span><span class="stat-lbl">Min Expiry</span></div>
+      </div>
+    </div>
+    <div class="brand-bg-shapes">
+      <div class="shape shape-1"></div>
+      <div class="shape shape-2"></div>
+      <div class="shape shape-3"></div>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="auth-form-panel">
+    <div class="auth-form-inner">
+      <div class="auth-form-header">
+        <h1>Check your inbox</h1>
+        <p>Code sent to <strong style="color:#e2e8f0;">{{ email }}</strong></p>
+      </div>
+
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}">
+            <span class="alert-icon">{% if category == 'danger' %}⚠{% elif category == 'success' %}✓{% elif category == 'warning' %}⚡{% else %}ℹ{% endif %}</span>
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('auth.verify_otp') }}">
+        <div class="field-group">
+          <label class="field-label">6-digit verification code</label>
+          <input type="text" name="otp" class="otp-field"
+                 placeholder="000000" maxlength="6"
+                 pattern="\d{6}" inputmode="numeric"
+                 autocomplete="one-time-code" autofocus required/>
+        </div>
+        <button type="submit" class="btn-submit">
+          Verify Email
+          <span class="btn-arrow">→</span>
+        </button>
+      </form>
+
+      <form method="POST" action="{{ url_for('auth.resend_otp') }}" style="margin-top:16px;">
+        <button type="submit" class="btn-resend">Resend code</button>
+      </form>
+
+      <p class="auth-switch">
+        Wrong account?
+        <a href="{{ url_for('auth.login') }}">Back to sign in</a>
+      </p>
+    </div>
+  </div>
+
+</div>
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

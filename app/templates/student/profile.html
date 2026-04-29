@@ -1,0 +1,93 @@
+{% extends "partials/base.html" %}
+{% block title %}My Profile — SAPCPOS{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+
+{% block content %}
+<div style="max-width:700px;">
+  <!-- Info card -->
+  <div class="card mb-24">
+    <div class="d-flex align-center gap-12 mb-24">
+      <div class="avatar" style="width:56px;height:56px;font-size:22px;">
+        {{ student.full_name[0].upper() }}
+      </div>
+      <div>
+        <div class="fw-bold" style="font-size:18px;">{{ student.full_name }}</div>
+        <div class="text-muted">{{ student.student_id }}</div>
+        <div class="text-muted" style="font-size:12px;">{{ student.course or 'No course set' }} · Year {{ student.year_level }}</div>
+      </div>
+    </div>
+
+    <div class="form-grid-2">
+      <div style="background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+        <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">GPA</div>
+        <div class="fw-bold" style="font-size:22px;">{{ student.gpa }}</div>
+      </div>
+      <div style="background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+        <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Attendance</div>
+        <div class="fw-bold" style="font-size:22px;">{{ student.attendance }}%</div>
+      </div>
+      <div style="background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+        <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Failures</div>
+        <div class="fw-bold" style="font-size:22px;">{{ student.failures }}</div>
+      </div>
+      <div style="background:var(--surface2);padding:14px;border-radius:var(--radius-sm);">
+        <div class="text-muted" style="font-size:11px;text-transform:uppercase;letter-spacing:.5px;">Trend</div>
+        <div class="fw-bold" style="font-size:22px;">
+          {{ '📈' if student.trend=='improving' else '➡️' if student.trend=='stable' else '📉' }}
+          {{ student.trend | title }}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Interests -->
+  <div class="card mb-24">
+    <div class="card-title mb-16">🎯 Academic Interests</div>
+    <p class="text-muted mb-16" style="font-size:13px;">
+      Select your interests. Dijkstra's algorithm will calculate your optimal academic
+      pathway for each selected track.
+    </p>
+    <form method="POST" action="{{ url_for('student.profile') }}">
+      <div class="d-flex gap-12" style="flex-wrap:wrap;margin-bottom:20px;">
+        {% for interest in all_interests %}
+        <label style="cursor:pointer;display:flex;align-items:center;gap:8px;
+                      padding:12px 20px;background:var(--surface2);
+                      border:2px solid {{ 'var(--primary)' if interest in current_interests else 'var(--border)' }};
+                      border-radius:var(--radius-sm);font-weight:600;
+                      transition:border-color .15s;">
+          <input type="checkbox" name="interests" value="{{ interest }}"
+                 {% if interest in current_interests %}checked{% endif %}
+                 style="display:none;"
+                 onchange="this.parentElement.style.borderColor=this.checked?'var(--primary)':'var(--border)'"/>
+          {{ '🔬' if interest=='STEM' else '💼' if interest=='Business' else '🎨' }}
+          {{ interest }}
+        </label>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary">💾 Save Interests &amp; Update Pathway</button>
+    </form>
+  </div>
+
+  <!-- Subject scores -->
+  {% if scores %}
+  <div class="card">
+    <div class="card-title mb-16">📚 Subject Scores</div>
+    {% for subj, score in scores.items() %}
+    <div style="margin-bottom:12px;">
+      <div class="d-flex justify-between" style="margin-bottom:5px;font-size:14px;">
+        <span>{{ subj }}</span>
+        <span class="fw-bold {{ 'text-green' if score>=85 else 'text-yellow' if score>=75 else 'text-red' }}">
+          {{ score }}
+        </span>
+      </div>
+      <div style="background:var(--border);border-radius:4px;height:6px;">
+        <div style="height:6px;border-radius:4px;width:{{ score }}%;
+                    background:{{ '#22c55e' if score>=85 else '#f59e0b' if score>=75 else '#ef4444' }};
+                    transition:width .4s;"></div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

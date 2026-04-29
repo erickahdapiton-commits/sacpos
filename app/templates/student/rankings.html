@@ -1,0 +1,93 @@
+{% extends "partials/base.html" %}
+{% block title %}Rankings — SAPCPOS{% endblock %}
+{% block page_title %}Class Rankings{% endblock %}
+
+{% block content %}
+{% if my_student %}
+<div class="card mb-24" style="border-left:3px solid var(--primary);">
+  <div class="d-flex align-center justify-between" style="flex-wrap:wrap;gap:12px;">
+    <div>
+      <p class="text-muted" style="font-size:12px;margin-bottom:4px;">Your Position</p>
+      <p class="fw-bold" style="font-size:22px;">
+        #{{ ranked | selectattr('1.id', 'equalto', my_student.id) | map(attribute='0') | first | default('—') }}
+        <span class="text-muted" style="font-size:14px;">of {{ ranked | length }}</span>
+      </p>
+    </div>
+    <div class="d-flex gap-12">
+      <div style="text-align:center;">
+        <div class="fw-bold" style="font-size:20px;">{{ my_student.gpa }}</div>
+        <div class="text-muted" style="font-size:11px;">Your GPA</div>
+      </div>
+      <div style="text-align:center;">
+        <div class="fw-bold" style="font-size:20px;">{{ my_student.attendance }}%</div>
+        <div class="text-muted" style="font-size:11px;">Attendance</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+<div class="card">
+  <div class="card-header">
+    <span class="card-title">🏆 Full Rankings (QuickSort)</span>
+    <span class="text-muted" style="font-size:12px;">Lower GPA = Higher Rank</span>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr>
+          <th>Rank</th>
+          <th>Student</th>
+          <th>GPA</th>
+          <th>GPA Bar</th>
+          <th>Attendance</th>
+          <th>Classification</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for rank, s in ranked %}
+        <tr {% if my_student and s.id == my_student.id %}
+            style="background:rgba(59,127,255,.08);border-left:3px solid var(--primary);"
+            {% endif %}>
+          <td>
+            <div class="rank-badge {{ 'rank-1' if rank==1 else 'rank-2' if rank==2 else 'rank-3' if rank==3 else 'rank-n' }}">
+              {% if rank == 1 %}🥇{% elif rank == 2 %}🥈{% elif rank == 3 %}🥉{% else %}{{ rank }}{% endif %}
+            </div>
+          </td>
+          <td>
+            <div class="fw-bold">
+              {{ s.full_name }}
+              {% if my_student and s.id == my_student.id %}
+                <span class="badge badge-info" style="margin-left:6px;">You</span>
+              {% endif %}
+            </div>
+            <div class="text-muted" style="font-size:11px;">{{ s.student_id }}</div>
+          </td>
+          <td>
+            <span class="fw-bold {{ 'text-green' if s.gpa<=1.75 else 'text-yellow' if s.gpa<=2.5 else 'text-red' }}">
+              {{ s.gpa }}
+            </span>
+          </td>
+          <td>
+            <div class="gpa-bar-wrap">
+              <div class="gpa-bar" data-gpa="{{ s.gpa }}"></div>
+            </div>
+          </td>
+          <td>{{ s.attendance }}%</td>
+          <td>
+            {% set cls = s.classification %}
+            <span class="badge badge-{{ 'advanced' if cls=='Advanced' else 'average' if cls=='Average' else 'at-risk' }}">
+              {{ cls }}
+            </span>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="text-muted text-center" style="padding:32px;">No students ranked yet.</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

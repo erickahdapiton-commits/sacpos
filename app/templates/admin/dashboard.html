@@ -1,0 +1,123 @@
+{% extends "partials/base.html" %}
+{% block title %}Admin Dashboard — SAPCPOS{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block topbar_actions %}
+  <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary btn-sm">
+    ➕ Add Student
+  </a>
+{% endblock %}
+
+{% block content %}
+<!-- Stats -->
+<div class="stats-grid">
+  <div class="stat-card stat-total">
+    <span class="label">Total Students</span>
+    <span class="value text-primary">{{ total }}</span>
+    <span class="sub">Enrolled records</span>
+  </div>
+  <div class="stat-card stat-advanced">
+    <span class="label">Advanced</span>
+    <span class="value text-green">{{ advanced }}</span>
+    <span class="sub">{{ ((advanced/total*100)|round(1)) if total else 0 }}% of total</span>
+  </div>
+  <div class="stat-card stat-average">
+    <span class="label">Average</span>
+    <span class="value text-yellow">{{ average }}</span>
+    <span class="sub">{{ ((average/total*100)|round(1)) if total else 0 }}% of total</span>
+  </div>
+  <div class="stat-card stat-risk">
+    <span class="label">At-Risk</span>
+    <span class="value text-red">{{ at_risk }}</span>
+    <span class="sub">{{ ((at_risk/total*100)|round(1)) if total else 0 }}% of total</span>
+  </div>
+  <div class="stat-card">
+    <span class="label">Avg GPA</span>
+    <span class="value">{{ avg_gpa }}</span>
+    <span class="sub">Philippine scale</span>
+  </div>
+  <div class="stat-card">
+    <span class="label">Avg Attendance</span>
+    <span class="value">{{ avg_attend }}%</span>
+    <span class="sub">Across all students</span>
+  </div>
+</div>
+
+<div class="d-flex gap-12" style="flex-wrap:wrap;">
+  <!-- Recent students -->
+  <div class="card" style="flex:2;min-width:300px;">
+    <div class="card-header">
+      <span class="card-title">Recent Students</span>
+      <a href="{{ url_for('admin.students') }}" class="btn btn-ghost btn-sm">View All</a>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Student</th>
+            <th>GPA</th>
+            <th>Attendance</th>
+            <th>Classification</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for s in students[:8] %}
+          <tr>
+            <td>
+              <div class="fw-bold">{{ s.full_name }}</div>
+              <div class="text-muted" style="font-size:11px;">{{ s.student_id }}</div>
+            </td>
+            <td>{{ s.gpa }}</td>
+            <td>{{ s.attendance }}%</td>
+            <td>
+              {% set cls = s.classification %}
+              <span class="badge badge-{{ cls.lower().replace(' ', '-').replace('at-risk','at-risk') }}">
+                {{ cls }}
+              </span>
+            </td>
+          </tr>
+          {% else %}
+          <tr><td colspan="4" class="text-muted text-center" style="padding:24px;">No students yet. <a href="{{ url_for('admin.add_student') }}">Add one →</a></td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Activity log -->
+  <div class="card" style="flex:1;min-width:260px;">
+    <div class="card-header">
+      <span class="card-title">Recent Activity</span>
+      <a href="{{ url_for('admin.logs') }}" class="btn btn-ghost btn-sm">All Logs</a>
+    </div>
+    {% for log in recent_logs %}
+    <div style="padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;">
+      <div class="fw-bold">{{ log.action.replace('_', ' ') }}</div>
+      <div class="text-muted" style="font-size:11px;">{{ log.detail[:40] }}</div>
+      <div class="text-muted" style="font-size:11px;">{{ log.created_at.strftime('%b %d, %H:%M') }}</div>
+    </div>
+    {% else %}
+    <p class="text-muted" style="padding:16px 0;">No activity yet.</p>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Quick links -->
+<div class="d-flex gap-12 mt-24" style="flex-wrap:wrap;">
+  <a href="{{ url_for('admin.rankings') }}" class="card" style="flex:1;min-width:160px;text-decoration:none;text-align:center;padding:20px;">
+    <div style="font-size:32px;">🏆</div>
+    <div class="fw-bold mt-8">Rankings</div>
+    <div class="text-muted" style="font-size:12px;">QuickSort by GPA</div>
+  </a>
+  <a href="{{ url_for('admin.analytics') }}" class="card" style="flex:1;min-width:160px;text-decoration:none;text-align:center;padding:20px;">
+    <div style="font-size:32px;">📈</div>
+    <div class="fw-bold mt-8">Analytics</div>
+    <div class="text-muted" style="font-size:12px;">Charts &amp; Trends</div>
+  </a>
+  <a href="{{ url_for('admin.logs') }}" class="card" style="flex:1;min-width:160px;text-decoration:none;text-align:center;padding:20px;">
+    <div style="font-size:32px;">📋</div>
+    <div class="fw-bold mt-8">Audit Log</div>
+    <div class="text-muted" style="font-size:12px;">All admin actions</div>
+  </a>
+</div>
+{% endblock %}

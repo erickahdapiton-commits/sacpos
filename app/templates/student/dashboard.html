@@ -1,0 +1,137 @@
+{% extends "partials/base.html" %}
+{% block title %}My Dashboard — SAPCPOS{% endblock %}
+{% block page_title %}My Academic Dashboard{% endblock %}
+
+{% block content %}
+<!-- Classification hero -->
+<div class="card mb-24" style="border-top:3px solid
+  {{ '#22c55e' if classification=='Advanced' else '#f59e0b' if classification=='Average' else '#ef4444' }};">
+  <div class="d-flex align-center justify-between" style="flex-wrap:wrap;gap:16px;">
+    <div>
+      <p class="text-muted" style="font-size:12px;margin-bottom:6px;">Your Classification</p>
+      <span class="class-pill {{ classification }}">
+        {{ '🌟' if classification=='Advanced' else '📘' if classification=='Average' else '⚠️' }}
+        {{ classification }}
+      </span>
+      <p class="text-muted mt-8" style="font-size:13px;">
+        Rank <strong style="color:var(--text);">#{{ my_rank }}</strong>
+        out of <strong style="color:var(--text);">{{ total_students }}</strong> students
+      </p>
+    </div>
+    <div class="d-flex gap-12" style="flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;color:{{ '#22c55e' if student.gpa<=1.75 else '#f59e0b' if student.gpa<=2.5 else '#ef4444' }};">
+          {{ student.gpa }}
+        </div>
+        <div class="text-muted" style="font-size:11px;">GPA</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;">{{ student.attendance }}%</div>
+        <div class="text-muted" style="font-size:11px;">Attendance</div>
+      </div>
+      <div style="text-align:center;">
+        <div style="font-size:28px;font-weight:800;">{{ student.failures }}</div>
+        <div class="text-muted" style="font-size:11px;">Failures</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="d-flex gap-12" style="flex-wrap:wrap;margin-bottom:24px;">
+  <!-- Decision tree reasons -->
+  <div class="card" style="flex:1;min-width:280px;">
+    <div class="card-title mb-16">🌲 Classification Reasons</div>
+    {% for reason in reasons %}
+    <div class="reason-item">
+      <span class="reason-icon">
+        {% if 'excellent' in reason.lower() or 'no failed' in reason.lower() %}✅
+        {% elif 'below' in reason.lower() or 'failing' in reason.lower() or 'high risk' in reason.lower() %}❌
+        {% elif 'declining' in reason.lower() %}📉
+        {% elif 'improving' in reason.lower() %}📈
+        {% else %}ℹ️{% endif %}
+      </span>
+      {{ reason }}
+    </div>
+    {% endfor %}
+  </div>
+
+  <!-- Subject scores -->
+  <div class="card" style="flex:1;min-width:260px;">
+    <div class="card-title mb-16">📚 Subject Scores</div>
+    {% if scores %}
+      {% for subj, score in scores.items() %}
+      <div style="margin-bottom:10px;">
+        <div class="d-flex justify-between" style="font-size:13px;margin-bottom:4px;">
+          <span>{{ subj }}</span>
+          <span class="fw-bold {{ 'text-green' if score>=85 else 'text-yellow' if score>=75 else 'text-red' }}">
+            {{ score }}
+          </span>
+        </div>
+        <div style="background:var(--border);border-radius:4px;height:5px;">
+          <div style="height:5px;border-radius:4px;width:{{ score }}%;
+                      background:{{ '#22c55e' if score>=85 else '#f59e0b' if score>=75 else '#ef4444' }};
+                      transition:width .3s;"></div>
+        </div>
+      </div>
+      {% endfor %}
+    {% else %}
+      <p class="text-muted">No subject scores recorded yet.</p>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Pathway summary -->
+{% if pathways %}
+<div class="card mb-24">
+  <div class="card-header">
+    <span class="card-title">🗺️ Recommended Pathways (Dijkstra)</span>
+    <a href="{{ url_for('student.pathway') }}" class="btn btn-ghost btn-sm">Full Pathway →</a>
+  </div>
+  {% for track, data in pathways.items() %}
+  <div class="pathway-track">
+    <div class="pathway-title">{{ track }} Track</div>
+    <div class="pathway-steps">
+      {% for i, course in enumerate(data.path) %}
+        <div class="pathway-step {{ 'start' if i==0 else 'goal' if i==data.path|length-1 else '' }}">
+          {{ course }}
+        </div>
+        {% if not loop.last %}
+          <span class="pathway-arrow">→</span>
+        {% endif %}
+      {% endfor %}
+    </div>
+    <div class="pathway-cost">Path cost: {{ data.cost }} (lower = smoother journey)</div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="card mb-24">
+  <div class="card-title mb-16">🗺️ Academic Pathway</div>
+  <p class="text-muted">No interests set yet.
+    <a href="{{ url_for('student.profile') }}">Set your interests →</a>
+  </p>
+</div>
+{% endif %}
+
+<!-- Quick actions -->
+<div class="d-flex gap-12" style="flex-wrap:wrap;">
+  <a href="{{ url_for('student.pathway') }}" class="card"
+     style="flex:1;min-width:140px;text-decoration:none;text-align:center;padding:20px;">
+    <div style="font-size:28px;">🗺️</div>
+    <div class="fw-bold mt-8">My Pathway</div>
+    <div class="text-muted" style="font-size:12px;">Dijkstra routing</div>
+  </a>
+  <a href="{{ url_for('student.rankings') }}" class="card"
+     style="flex:1;min-width:140px;text-decoration:none;text-align:center;padding:20px;">
+    <div style="font-size:28px;">🏆</div>
+    <div class="fw-bold mt-8">Rankings</div>
+    <div class="text-muted" style="font-size:12px;">Where do I stand?</div>
+  </a>
+  <a href="{{ url_for('student.profile') }}" class="card"
+     style="flex:1;min-width:140px;text-decoration:none;text-align:center;padding:20px;">
+    <div style="font-size:28px;">👤</div>
+    <div class="fw-bold mt-8">My Profile</div>
+    <div class="text-muted" style="font-size:12px;">Update interests</div>
+  </a>
+</div>
+{% endblock %}

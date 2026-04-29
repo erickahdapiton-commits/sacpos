@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}SAPCPOS{% endblock %}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
+  {% block head %}{% endblock %}
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <h1>📊 SAPCPOS</h1>
+      <p>Academic Performance System</p>
+    </div>
+
+    <nav class="sidebar-nav">
+      {% if current_user.is_authenticated and current_user.is_admin() %}
+        <div class="nav-section">Main</div>
+        <a href="{{ url_for('admin.dashboard') }}"
+           class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+          <span class="icon">🏠</span> Dashboard
+        </a>
+        <a href="{{ url_for('admin.students') }}"
+           class="nav-link {% if 'student' in request.endpoint %}active{% endif %}">
+          <span class="icon">👥</span> Students
+        </a>
+        <a href="{{ url_for('admin.rankings') }}"
+           class="nav-link {% if request.endpoint == 'admin.rankings' %}active{% endif %}">
+          <span class="icon">🏆</span> Rankings
+        </a>
+        <a href="{{ url_for('admin.analytics') }}"
+           class="nav-link {% if request.endpoint == 'admin.analytics' %}active{% endif %}">
+          <span class="icon">📈</span> Analytics
+        </a>
+        <div class="nav-section">System</div>
+        <a href="{{ url_for('admin.notifications') }}"
+           class="nav-link {% if request.endpoint == 'admin.notifications' %}active{% endif %}">
+          <span class="icon">🔔</span> Notifications
+          {% if notif_count %}
+            <span class="notif-dot">{{ notif_count }}</span>
+          {% endif %}
+        </a>
+        <a href="{{ url_for('admin.logs') }}"
+           class="nav-link {% if request.endpoint == 'admin.logs' %}active{% endif %}">
+          <span class="icon">📋</span> Activity Logs
+        </a>
+
+      {% elif current_user.is_authenticated %}
+        <div class="nav-section">My Dashboard</div>
+        <a href="{{ url_for('student.dashboard') }}"
+           class="nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}">
+          <span class="icon">🏠</span> Dashboard
+        </a>
+        <a href="{{ url_for('student.pathway') }}"
+           class="nav-link {% if request.endpoint == 'student.pathway' %}active{% endif %}">
+          <span class="icon">🗺️</span> My Pathway
+        </a>
+        <a href="{{ url_for('student.rankings') }}"
+           class="nav-link {% if request.endpoint == 'student.rankings' %}active{% endif %}">
+          <span class="icon">🏆</span> Rankings
+        </a>
+        <a href="{{ url_for('student.profile') }}"
+           class="nav-link {% if request.endpoint == 'student.profile' %}active{% endif %}">
+          <span class="icon">👤</span> My Profile
+        </a>
+        <div class="nav-section">Alerts</div>
+        <a href="{{ url_for('student.notifications') }}"
+           class="nav-link {% if request.endpoint == 'student.notifications' %}active{% endif %}">
+          <span class="icon">🔔</span> Notifications
+          {% if notif_count %}
+            <span class="notif-dot">{{ notif_count }}</span>
+          {% endif %}
+        </a>
+      {% endif %}
+    </nav>
+
+    <div class="sidebar-footer">
+      {% if current_user.is_authenticated %}
+        <div class="sidebar-user">
+          <div class="avatar">{{ current_user.full_name[0].upper() }}</div>
+          <div class="sidebar-user-info">
+            <p>{{ current_user.full_name | truncate(18, true, '…') }}</p>
+            <span>{{ current_user.role | title }}</span>
+          </div>
+        </div>
+        <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-sm w-full mt-12">
+          🚪 Logout
+        </a>
+      {% endif %}
+    </div>
+  </aside>
+
+  <!-- Main -->
+  <div class="main-content">
+    <header class="topbar">
+      <div class="d-flex align-center gap-8">
+        <button id="menu-toggle" class="btn btn-ghost btn-icon" style="display:none">☰</button>
+        <span class="topbar-title">{% block page_title %}{% endblock %}</span>
+      </div>
+      <div class="topbar-actions">
+        {% block topbar_actions %}{% endblock %}
+      </div>
+    </header>
+
+    <main class="page-body">
+      {% with messages = get_flashed_messages(with_categories=true) %}
+        {% for category, message in messages %}
+          <div class="alert alert-{{ category }}" data-autohide>
+            {% if category == 'success' %}✅{% elif category == 'danger' %}❌{% elif category == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+            {{ message }}
+          </div>
+        {% endfor %}
+      {% endwith %}
+
+      {% block content %}{% endblock %}
+    </main>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/main.js') }}"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
