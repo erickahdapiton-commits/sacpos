@@ -3,219 +3,319 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Register — SAPCPOS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <title>Create Account — SAPCPOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@600;700&family=Figtree:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'DM Sans', sans-serif; background: #0a0c14; min-height: 100vh; display: flex; overflow: hidden; }
 
-    .auth-panel-left {
-      width: 44%; min-height: 100vh; position: relative;
-      display: flex; flex-direction: column; justify-content: space-between;
-      padding: 48px 52px; background: #0d1020; overflow: hidden;
+    :root {
+      --forest:   #162b1e;
+      --forest2:  #1e3a28;
+      --emerald:  #2d7a4f;
+      --emerald2: #3a9463;
+      --mint:     #7ecba1;
+      --cream:    #f7f3ec;
+      --white:    #ffffff;
+      --ink:      #111a14;
+      --muted:    #6b7c72;
+      --border:   #ddd8cf;
     }
-    .auth-panel-left::before {
-      content: ''; position: absolute; inset: 0;
-      background:
-        radial-gradient(ellipse 60% 50% at 15% 30%, rgba(99,102,241,0.2) 0%, transparent 60%),
-        radial-gradient(ellipse 50% 40% at 75% 65%, rgba(59,127,255,0.15) 0%, transparent 60%),
-        radial-gradient(ellipse 40% 50% at 55% 95%, rgba(34,197,94,0.1) 0%, transparent 55%);
-      pointer-events: none;
+
+    body {
+      font-family: 'Figtree', sans-serif;
+      min-height: 100vh;
+      background: var(--forest);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 32px 16px;
+      position: relative;
+      overflow-x: hidden;
     }
-    .auth-panel-left::after {
-      content: ''; position: absolute; inset: 0;
-      background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
-      background-size: 40px 40px; pointer-events: none;
+
+    /* ── Animated background ── */
+    .bg-art { position: fixed; inset: 0; pointer-events: none; overflow: hidden; }
+    .bg-ring { position: absolute; border-radius: 50%; border: 1px solid rgba(126,203,161,0.08); }
+    .bg-ring:nth-child(1) { width: 800px; height: 800px; top: -300px; right: -250px; animation: spin 80s linear infinite; }
+    .bg-ring:nth-child(2) { width: 500px; height: 500px; top: -150px; right: -100px; border-color: rgba(126,203,161,0.12); animation: spin 55s linear infinite reverse; }
+    .bg-ring:nth-child(3) { width: 1100px; height: 1100px; bottom: -500px; left: -400px; border-color: rgba(45,122,79,0.15); animation: spin 100s linear infinite; }
+    .bg-ring:nth-child(4) { width: 600px; height: 600px; bottom: -200px; left: -150px; border-color: rgba(126,203,161,0.07); animation: spin 65s linear infinite reverse; }
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .bg-glow { position: absolute; border-radius: 50%; filter: blur(80px); }
+    .bg-glow:nth-child(5) { width: 500px; height: 400px; top: -100px; right: -100px; background: rgba(45,122,79,0.25); }
+    .bg-glow:nth-child(6) { width: 400px; height: 400px; bottom: -100px; left: -100px; background: rgba(22,43,30,0.6); }
+    .bg-dots { position: absolute; inset: 0; background-image: radial-gradient(rgba(126,203,161,0.12) 1px, transparent 1px); background-size: 32px 32px; }
+
+    /* ── Top bar ── */
+    .topbar {
+      position: relative; z-index: 10;
+      display: flex; align-items: center; justify-content: space-between;
+      width: 100%; max-width: 480px;
+      margin-bottom: 28px;
     }
-    .left-top, .left-center, .left-bottom { position: relative; z-index: 2; }
-    .left-center { padding: 16px 0; }
+    .brand { display: flex; align-items: center; gap: 10px; }
+    .brand-icon {
+      width: 36px; height: 36px;
+      background: linear-gradient(135deg, var(--emerald), var(--mint));
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 4px 16px rgba(45,122,79,0.5);
+    }
+    .brand-name { font-family: 'Cormorant Garamond', serif; font-size: 20px; font-weight: 700; color: var(--cream); letter-spacing: 0.3px; }
+    .signin-link { font-size: 13px; font-weight: 500; color: rgba(247,243,236,0.5); text-decoration: none; transition: color 0.2s; }
+    .signin-link span { color: var(--mint); font-weight: 600; }
+    .signin-link:hover span { text-decoration: underline; }
 
-    .brand-logo { display: inline-flex; align-items: center; gap: 10px; }
-    .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #3b7fff, #6366f1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 20px rgba(59,127,255,0.4); }
-    .brand-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+    /* ── Card ── */
+    .card {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 480px;
+      background: var(--cream);
+      border-radius: 24px;
+      padding: 40px 44px 36px;
+      box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 24px 64px rgba(0,0,0,0.35), 0 8px 24px rgba(0,0,0,0.2);
+      animation: riseIn 0.55s cubic-bezier(0.22,1,0.36,1) forwards;
+    }
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(24px) scale(0.98); }
+      to   { opacity: 1; transform: translateY(0) scale(1); }
+    }
 
-    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: #818cf8; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 22px; }
-    .hero-tag::before { content: ''; width: 6px; height: 6px; background: #818cf8; border-radius: 50%; animation: pulse 2s infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+    .card-head { text-align: center; margin-bottom: 28px; }
+    .card-eyebrow {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1.5px;
+      text-transform: uppercase; color: var(--emerald);
+      margin-bottom: 10px;
+    }
+    .eyebrow-dot { width: 5px; height: 5px; background: var(--emerald2); border-radius: 50%; animation: blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
 
-    .hero-title { font-family: 'Syne', sans-serif; font-size: clamp(28px, 3vw, 42px); font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -1.2px; margin-bottom: 16px; }
-    .hero-title span { background: linear-gradient(135deg, #818cf8, #3b7fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-    .hero-desc { font-size: 14px; color: #94a3b8; line-height: 1.7; max-width: 340px; margin-bottom: 32px; }
+    .card-title { font-family: 'Cormorant Garamond', serif; font-size: 32px; font-weight: 700; color: var(--ink); letter-spacing: -0.5px; line-height: 1.1; margin-bottom: 6px; }
+    .card-sub { font-size: 13px; color: var(--muted); font-weight: 400; }
 
-    .steps-list { display: flex; flex-direction: column; gap: 16px; }
-    .step-item { display: flex; align-items: flex-start; gap: 14px; }
-    .step-num { width: 28px; height: 28px; border-radius: 8px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #818cf8; flex-shrink: 0; margin-top: 1px; }
-    .step-content h4 { font-size: 13px; font-weight: 600; color: #e2e8f0; margin-bottom: 2px; }
-    .step-content p { font-size: 12px; color: #64748b; line-height: 1.5; }
+    /* Google button */
+    .btn-google {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 10px;
+      padding: 12px 20px;
+      background: var(--white); color: var(--ink);
+      border: 1.5px solid var(--border);
+      border-radius: 12px;
+      font-family: 'Figtree', sans-serif; font-size: 14px; font-weight: 600;
+      text-decoration: none; transition: all 0.18s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.07);
+      margin-bottom: 20px;
+    }
+    .btn-google:hover { border-color: #bbb6ae; box-shadow: 0 3px 12px rgba(0,0,0,0.12); transform: translateY(-1px); color: var(--ink); text-decoration: none; }
+    .g-svg { width: 18px; height: 18px; flex-shrink: 0; }
 
-    .trust-bar { display: flex; gap: 20px; padding-top: 8px; flex-wrap: wrap; }
-    .trust-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4a4d5e; font-weight: 500; }
-    .trust-item span { font-size: 14px; }
+    /* Divider */
+    .or-line { display: flex; align-items: center; gap: 12px; margin-bottom: 20px; }
+    .or-line::before, .or-line::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .or-line span { font-size: 11px; color: #b0aba3; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap; }
 
-    /* ── Right / form panel ── */
-    .auth-panel-right { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 48px 48px; background: #0f1117; overflow-y: auto; }
-    .auth-form-box { width: 100%; max-width: 420px; padding-top: 8px; padding-bottom: 40px; }
+    /* Form */
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .field { margin-bottom: 16px; }
+    .field-label {
+      display: flex; align-items: center; gap: 5px;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.6px;
+      color: var(--ink); text-transform: uppercase; margin-bottom: 7px;
+    }
+    .field-label svg { width: 12px; height: 12px; opacity: 0.45; }
+    .field-input {
+      width: 100%; padding: 11px 14px;
+      background: var(--white); border: 1.5px solid var(--border);
+      border-radius: 10px;
+      font-family: 'Figtree', sans-serif; font-size: 14px; color: var(--ink);
+      outline: none; transition: border-color 0.18s, box-shadow 0.18s;
+    }
+    .field-input::placeholder { color: #c8c3bb; }
+    .field-input:focus { border-color: var(--emerald); box-shadow: 0 0 0 3px rgba(45,122,79,0.12); }
 
-    .form-header { margin-bottom: 28px; }
-    .form-header h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.8px; margin-bottom: 5px; }
-    .form-header p { font-size: 14px; color: #64748b; }
+    /* Password bar */
+    .pw-bar-wrap { margin-top: 6px; display: flex; gap: 3px; }
+    .pw-seg { flex: 1; height: 3px; background: var(--border); border-radius: 99px; transition: background 0.3s; }
+    .pw-seg.weak { background: #e74c3c; }
+    .pw-seg.fair { background: #f39c12; }
+    .pw-seg.strong { background: var(--emerald); }
 
-    .btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 13px 20px; background: #fff; color: #1a1a2e; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
-    .btn-google:hover { background: #f1f5f9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); text-decoration: none; color: #1a1a2e; }
-    .google-icon { width: 20px; height: 20px; flex-shrink: 0; }
+    /* Submit */
+    .btn-submit {
+      width: 100%; padding: 13px 20px;
+      background: var(--forest); color: var(--cream);
+      border: none; border-radius: 12px;
+      font-family: 'Figtree', sans-serif; font-size: 15px; font-weight: 700;
+      cursor: pointer; transition: all 0.18s; margin-top: 6px;
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+    }
+    .btn-submit:hover { background: var(--forest2); transform: translateY(-1px); box-shadow: 0 8px 28px rgba(22,43,30,0.4); }
+    .btn-submit:active { transform: translateY(0); }
+    .btn-arrow { transition: transform 0.2s; }
+    .btn-submit:hover .btn-arrow { transform: translateX(3px); }
 
-    .auth-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
-    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #1e2235; }
-    .auth-divider span { font-size: 12px; color: #4a4d5e; font-weight: 500; white-space: nowrap; }
+    /* Alerts */
+    .alert { padding: 11px 14px; border-radius: 10px; font-size: 13px; margin-bottom: 16px; font-weight: 500; }
+    .alert-danger  { background: #fef2f2; border: 1px solid #fecaca; color: #b91c1c; }
+    .alert-success { background: #f0fdf4; border: 1px solid #bbf7d0; color: #15803d; }
+    .alert-warning { background: #fffbeb; border: 1px solid #fde68a; color: #b45309; }
+    .alert-info    { background: #f0fdf4; border: 1px solid #a7f3d0; color: var(--emerald); }
 
-    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    .card-foot { margin-top: 18px; text-align: center; font-size: 11px; color: #b0aba3; line-height: 1.6; }
 
-    .input-group { margin-bottom: 14px; }
-    .input-label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
-    .input-field { width: 100%; padding: 12px 14px; background: #131623; border: 1px solid #1e2235; border-radius: 10px; color: #e2e8f0; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: all 0.2s; }
-    .input-field::placeholder { color: #374151; }
-    .input-field:focus { border-color: #6366f1; background: #0f1420; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+    /* Step pills */
+    .step-pills { position: relative; z-index: 10; display: flex; align-items: center; gap: 0; margin-top: 24px; width: 100%; max-width: 320px; }
+    .sp { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: rgba(247,243,236,0.3); padding: 6px 12px; border-radius: 99px; }
+    .sp.active { background: rgba(126,203,161,0.12); color: var(--mint); border: 1px solid rgba(126,203,161,0.2); }
+    .sp-num { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid currentColor; display: flex; align-items: center; justify-content: center; font-size: 9px; font-weight: 800; flex-shrink: 0; }
+    .sp.active .sp-num { background: var(--mint); border-color: var(--mint); color: var(--forest); }
+    .sp-dash { width: 20px; height: 1px; background: rgba(255,255,255,0.1); }
 
-    .password-hint { font-size: 11px; color: #4a4d5e; margin-top: 5px; }
-
-    .btn-submit { width: 100%; padding: 14px 20px; background: linear-gradient(135deg, #6366f1, #3b7fff); color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
-    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.35); filter: brightness(1.1); }
-
-    .form-footer { text-align: center; margin-top: 20px; font-size: 13px; color: #4a4d5e; }
-    .form-footer a { color: #6366f1; font-weight: 600; text-decoration: none; }
-    .form-footer a:hover { text-decoration: underline; }
-
-    .alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; font-weight: 500; }
-    .alert-danger  { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.25);  color: #ef4444; }
-    .alert-success { background: rgba(34,197,94,0.12);  border: 1px solid rgba(34,197,94,0.25);  color: #22c55e; }
-    .alert-warning { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: #f59e0b; }
-    .alert-info    { background: rgba(59,127,255,0.12); border: 1px solid rgba(59,127,255,0.25); color: #3b7fff; }
-
-    .terms-note { font-size: 11px; color: #374151; text-align: center; margin-top: 14px; line-height: 1.5; }
-    .terms-note a { color: #4a4d5e; text-decoration: underline; }
-
-    @media (max-width: 900px) { .form-row { grid-template-columns: 1fr; } }
-    @media (max-width: 768px) { .auth-panel-left { display: none; } .auth-panel-right { padding: 32px 20px; } }
+    @media (max-width: 560px) {
+      .card { padding: 28px 20px; border-radius: 18px; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 
-<!-- LEFT PANEL -->
-<div class="auth-panel-left">
-  <div class="left-top">
-    <div class="brand-logo">
-      <div class="brand-icon">📊</div>
-      <span class="brand-name">SAPCPOS</span>
-    </div>
+<div class="bg-art">
+  <div class="bg-ring"></div>
+  <div class="bg-ring"></div>
+  <div class="bg-ring"></div>
+  <div class="bg-ring"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-glow"></div>
+  <div class="bg-dots"></div>
+</div>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-icon">📊</div>
+    <span class="brand-name">SAPCPOS</span>
+  </div>
+  <a href="{{ url_for('auth.login') }}" class="signin-link">
+    Already a member? <span>Sign in</span>
+  </a>
+</div>
+
+<!-- Card -->
+<div class="card">
+  <div class="card-head">
+    <div class="card-eyebrow"><span class="eyebrow-dot"></span> NEMSU Student Portal</div>
+    <h1 class="card-title">Create your account</h1>
+    <p class="card-sub">Register to access your academic dashboard &amp; pathway</p>
   </div>
 
-  <div class="left-center">
-    <div class="hero-tag">Student Registration</div>
-    <h1 class="hero-title">Begin your<br/><span>academic journey.</span></h1>
-    <p class="hero-desc">Create your account in seconds and unlock your personalized academic dashboard, pathway recommendations, and performance insights.</p>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
 
-    <div class="steps-list">
-      <div class="step-item">
-        <div class="step-num">1</div>
-        <div class="step-content">
-          <h4>Create your account</h4>
-          <p>Register with your student ID and school email, or sign in instantly with Google.</p>
-        </div>
+  <a href="{{ url_for('auth.google_login') }}" class="btn-google">
+    <svg class="g-svg" viewBox="0 0 24 24">
+      <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+      <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+      <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+      <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+    </svg>
+    Continue with Google
+  </a>
+
+  <div class="or-line"><span>or sign up with email</span></div>
+
+  <form method="POST" action="{{ url_for('auth.register') }}">
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 3H8L2 7h20z"/></svg>
+          Student ID
+        </label>
+        <input type="text" name="student_id" class="field-input" placeholder="2024-00001" required/>
       </div>
-      <div class="step-item">
-        <div class="step-num">2</div>
-        <div class="step-content">
-          <h4>Verify your email</h4>
-          <p>A 6-digit OTP will be sent to confirm your identity and secure your account.</p>
-        </div>
-      </div>
-      <div class="step-item">
-        <div class="step-num">3</div>
-        <div class="step-content">
-          <h4>Get classified &amp; explore</h4>
-          <p>Your admin will classify your performance and you'll see your personalized pathway.</p>
-        </div>
+      <div class="field">
+        <label class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+          Full Name
+        </label>
+        <input type="text" name="full_name" class="field-input" placeholder="Juan Dela Cruz" required/>
       </div>
     </div>
-  </div>
 
-  <div class="left-bottom">
-    <div class="trust-bar">
-      <div class="trust-item"><span>🔒</span> Secure &amp; Private</div>
-      <div class="trust-item"><span>📧</span> OTP Verified</div>
-      <div class="trust-item"><span>⚡</span> Instant Access</div>
+    <div class="field">
+      <label class="field-label">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Email Address
+      </label>
+      <input type="email" name="email" class="field-input" placeholder="student@nemsu.edu.ph" required/>
     </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Password
+        </label>
+        <input type="password" name="password" id="pw" class="field-input" placeholder="Min. 8 characters" required minlength="8"/>
+        <div class="pw-bar-wrap">
+          <div class="pw-seg" id="s1"></div>
+          <div class="pw-seg" id="s2"></div>
+          <div class="pw-seg" id="s3"></div>
+          <div class="pw-seg" id="s4"></div>
+        </div>
+      </div>
+      <div class="field">
+        <label class="field-label">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 12l2 2 4-4"/><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+          Confirm
+        </label>
+        <input type="password" name="confirm_password" class="field-input" placeholder="Repeat password" required/>
+      </div>
+    </div>
+
+    <button type="submit" class="btn-submit">
+      Create Account
+      <svg class="btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+    </button>
+  </form>
+
+  <div class="card-foot">
+    By registering, you agree to your institution's academic data policy.
   </div>
 </div>
 
-<!-- RIGHT PANEL -->
-<div class="auth-panel-right">
-  <div class="auth-form-box">
-    <div class="form-header">
-      <h2>Create account</h2>
-      <p>Fill in your details to get started</p>
-    </div>
-
-    {% with messages = get_flashed_messages(with_categories=true) %}
-      {% for category, message in messages %}
-        <div class="alert alert-{{ category }}">{{ message }}</div>
-      {% endfor %}
-    {% endwith %}
-
-    <!-- Google -->
-    <a href="{{ url_for('auth.google_login') }}" class="btn-google">
-      <svg class="google-icon" viewBox="0 0 24 24">
-        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-      </svg>
-      Sign up with Google
-    </a>
-
-    <div class="auth-divider"><span>or register with email</span></div>
-
-    <form method="POST" action="{{ url_for('auth.register') }}">
-      <div class="form-row">
-        <div class="input-group">
-          <label class="input-label">Student ID</label>
-          <input type="text" name="student_id" class="input-field" placeholder="2024-00001" required/>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Full Name</label>
-          <input type="text" name="full_name" class="input-field" placeholder="Juan Dela Cruz" required/>
-        </div>
-      </div>
-
-      <div class="input-group">
-        <label class="input-label">Email Address</label>
-        <input type="email" name="email" class="input-field" placeholder="student@school.edu" required/>
-      </div>
-
-      <div class="form-row">
-        <div class="input-group">
-          <label class="input-label">Password</label>
-          <input type="password" name="password" class="input-field" placeholder="Min. 8 characters" required minlength="8"/>
-        </div>
-        <div class="input-group">
-          <label class="input-label">Confirm Password</label>
-          <input type="password" name="confirm_password" class="input-field" placeholder="Repeat password" required/>
-        </div>
-      </div>
-
-      <button type="submit" class="btn-submit">Create Account →</button>
-    </form>
-
-    <div class="form-footer">
-      Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
-    </div>
-    <div class="terms-note">
-      By registering, you agree to your institution's academic data policy.
-    </div>
-  </div>
+<!-- Step pills -->
+<div class="step-pills">
+  <div class="sp active"><div class="sp-num">1</div> Register</div>
+  <div class="sp-dash"></div>
+  <div class="sp"><div class="sp-num">2</div> Verify OTP</div>
+  <div class="sp-dash"></div>
+  <div class="sp"><div class="sp-num">3</div> Access</div>
 </div>
 
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+<script>
+  const pw = document.getElementById('pw');
+  const segs = ['s1','s2','s3','s4'].map(id => document.getElementById(id));
+  pw.addEventListener('input', () => {
+    const v = pw.value;
+    let score = 0;
+    if (v.length >= 8) score++;
+    if (/[A-Z]/.test(v)) score++;
+    if (/[0-9]/.test(v)) score++;
+    if (/[^A-Za-z0-9]/.test(v)) score++;
+    segs.forEach((s, i) => {
+      s.classList.remove('weak','fair','strong');
+      if (i < score) s.classList.add(score <= 1 ? 'weak' : score <= 2 ? 'fair' : 'strong');
+    });
+  });
+</script>
 </body>
 </html>
