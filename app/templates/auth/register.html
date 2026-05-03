@@ -3,133 +3,219 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Create Account — SAPCPOS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <title>Register — SAPCPOS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'DM Sans', sans-serif; background: #0a0c14; min-height: 100vh; display: flex; overflow: hidden; }
+
+    .auth-panel-left {
+      width: 44%; min-height: 100vh; position: relative;
+      display: flex; flex-direction: column; justify-content: space-between;
+      padding: 48px 52px; background: #0d1020; overflow: hidden;
+    }
+    .auth-panel-left::before {
+      content: ''; position: absolute; inset: 0;
+      background:
+        radial-gradient(ellipse 60% 50% at 15% 30%, rgba(99,102,241,0.2) 0%, transparent 60%),
+        radial-gradient(ellipse 50% 40% at 75% 65%, rgba(59,127,255,0.15) 0%, transparent 60%),
+        radial-gradient(ellipse 40% 50% at 55% 95%, rgba(34,197,94,0.1) 0%, transparent 55%);
+      pointer-events: none;
+    }
+    .auth-panel-left::after {
+      content: ''; position: absolute; inset: 0;
+      background-image: linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+      background-size: 40px 40px; pointer-events: none;
+    }
+    .left-top, .left-center, .left-bottom { position: relative; z-index: 2; }
+    .left-center { padding: 16px 0; }
+
+    .brand-logo { display: inline-flex; align-items: center; gap: 10px; }
+    .brand-icon { width: 40px; height: 40px; background: linear-gradient(135deg, #3b7fff, #6366f1); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 20px; box-shadow: 0 0 20px rgba(59,127,255,0.4); }
+    .brand-name { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 800; color: #fff; letter-spacing: -0.5px; }
+
+    .hero-tag { display: inline-flex; align-items: center; gap: 8px; background: rgba(99,102,241,0.12); border: 1px solid rgba(99,102,241,0.25); border-radius: 20px; padding: 6px 14px; font-size: 12px; font-weight: 600; color: #818cf8; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 22px; }
+    .hero-tag::before { content: ''; width: 6px; height: 6px; background: #818cf8; border-radius: 50%; animation: pulse 2s infinite; }
+    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+
+    .hero-title { font-family: 'Syne', sans-serif; font-size: clamp(28px, 3vw, 42px); font-weight: 800; color: #fff; line-height: 1.1; letter-spacing: -1.2px; margin-bottom: 16px; }
+    .hero-title span { background: linear-gradient(135deg, #818cf8, #3b7fff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .hero-desc { font-size: 14px; color: #94a3b8; line-height: 1.7; max-width: 340px; margin-bottom: 32px; }
+
+    .steps-list { display: flex; flex-direction: column; gap: 16px; }
+    .step-item { display: flex; align-items: flex-start; gap: 14px; }
+    .step-num { width: 28px; height: 28px; border-radius: 8px; background: rgba(99,102,241,0.15); border: 1px solid rgba(99,102,241,0.3); display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: #818cf8; flex-shrink: 0; margin-top: 1px; }
+    .step-content h4 { font-size: 13px; font-weight: 600; color: #e2e8f0; margin-bottom: 2px; }
+    .step-content p { font-size: 12px; color: #64748b; line-height: 1.5; }
+
+    .trust-bar { display: flex; gap: 20px; padding-top: 8px; flex-wrap: wrap; }
+    .trust-item { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4a4d5e; font-weight: 500; }
+    .trust-item span { font-size: 14px; }
+
+    /* ── Right / form panel ── */
+    .auth-panel-right { flex: 1; display: flex; align-items: flex-start; justify-content: center; padding: 48px 48px; background: #0f1117; overflow-y: auto; }
+    .auth-form-box { width: 100%; max-width: 420px; padding-top: 8px; padding-bottom: 40px; }
+
+    .form-header { margin-bottom: 28px; }
+    .form-header h2 { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 800; color: #fff; letter-spacing: -0.8px; margin-bottom: 5px; }
+    .form-header p { font-size: 14px; color: #64748b; }
+
+    .btn-google { width: 100%; display: flex; align-items: center; justify-content: center; gap: 12px; padding: 13px 20px; background: #fff; color: #1a1a2e; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; text-decoration: none; transition: all 0.2s; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+    .btn-google:hover { background: #f1f5f9; transform: translateY(-1px); box-shadow: 0 4px 20px rgba(0,0,0,0.4); text-decoration: none; color: #1a1a2e; }
+    .google-icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+    .auth-divider { display: flex; align-items: center; gap: 12px; margin: 22px 0; }
+    .auth-divider::before, .auth-divider::after { content: ''; flex: 1; height: 1px; background: #1e2235; }
+    .auth-divider span { font-size: 12px; color: #4a4d5e; font-weight: 500; white-space: nowrap; }
+
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+    .input-group { margin-bottom: 14px; }
+    .input-label { display: block; font-size: 12px; font-weight: 600; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 7px; }
+    .input-field { width: 100%; padding: 12px 14px; background: #131623; border: 1px solid #1e2235; border-radius: 10px; color: #e2e8f0; font-family: 'DM Sans', sans-serif; font-size: 14px; outline: none; transition: all 0.2s; }
+    .input-field::placeholder { color: #374151; }
+    .input-field:focus { border-color: #6366f1; background: #0f1420; box-shadow: 0 0 0 3px rgba(99,102,241,0.12); }
+
+    .password-hint { font-size: 11px; color: #4a4d5e; margin-top: 5px; }
+
+    .btn-submit { width: 100%; padding: 14px 20px; background: linear-gradient(135deg, #6366f1, #3b7fff); color: #fff; border: none; border-radius: 10px; font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.2s; margin-top: 6px; }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 6px 24px rgba(99,102,241,0.35); filter: brightness(1.1); }
+
+    .form-footer { text-align: center; margin-top: 20px; font-size: 13px; color: #4a4d5e; }
+    .form-footer a { color: #6366f1; font-weight: 600; text-decoration: none; }
+    .form-footer a:hover { text-decoration: underline; }
+
+    .alert { padding: 12px 16px; border-radius: 8px; font-size: 13px; margin-bottom: 16px; font-weight: 500; }
+    .alert-danger  { background: rgba(239,68,68,0.12);  border: 1px solid rgba(239,68,68,0.25);  color: #ef4444; }
+    .alert-success { background: rgba(34,197,94,0.12);  border: 1px solid rgba(34,197,94,0.25);  color: #22c55e; }
+    .alert-warning { background: rgba(245,158,11,0.12); border: 1px solid rgba(245,158,11,0.25); color: #f59e0b; }
+    .alert-info    { background: rgba(59,127,255,0.12); border: 1px solid rgba(59,127,255,0.25); color: #3b7fff; }
+
+    .terms-note { font-size: 11px; color: #374151; text-align: center; margin-top: 14px; line-height: 1.5; }
+    .terms-note a { color: #4a4d5e; text-decoration: underline; }
+
+    @media (max-width: 900px) { .form-row { grid-template-columns: 1fr; } }
+    @media (max-width: 768px) { .auth-panel-left { display: none; } .auth-panel-right { padding: 32px 20px; } }
+  </style>
 </head>
 <body>
-<div class="auth-split">
 
-  <!-- Left panel — branding -->
-  <div class="auth-brand">
-    <div class="auth-brand-inner">
-      <div class="brand-logo">
-        <span class="brand-icon">📊</span>
-        <span class="brand-name">SAPCPOS</span>
-      </div>
-      <h2 class="brand-tagline">Your academic<br/>journey starts here.</h2>
-      <p class="brand-sub">Create your student account and get access to smart classification, pathway recommendations, and real-time performance insights.</p>
-      <div class="brand-stats">
-        <div class="brand-stat"><span class="stat-num">3</span><span class="stat-lbl">Pathways</span></div>
-        <div class="brand-stat"><span class="stat-num">AI</span><span class="stat-lbl">Powered</span></div>
-        <div class="brand-stat"><span class="stat-num">∞</span><span class="stat-lbl">Insights</span></div>
-      </div>
-    </div>
-    <div class="brand-bg-shapes">
-      <div class="shape shape-1"></div>
-      <div class="shape shape-2"></div>
-      <div class="shape shape-3"></div>
+<!-- LEFT PANEL -->
+<div class="auth-panel-left">
+  <div class="left-top">
+    <div class="brand-logo">
+      <div class="brand-icon">📊</div>
+      <span class="brand-name">SAPCPOS</span>
     </div>
   </div>
 
-  <!-- Right panel — form -->
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
-      <div class="auth-form-header">
-        <h1>Create account</h1>
-        <p>Join SAPCPOS as a student</p>
+  <div class="left-center">
+    <div class="hero-tag">Student Registration</div>
+    <h1 class="hero-title">Begin your<br/><span>academic journey.</span></h1>
+    <p class="hero-desc">Create your account in seconds and unlock your personalized academic dashboard, pathway recommendations, and performance insights.</p>
+
+    <div class="steps-list">
+      <div class="step-item">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <h4>Create your account</h4>
+          <p>Register with your student ID and school email, or sign in instantly with Google.</p>
+        </div>
       </div>
-
-      {% with messages = get_flashed_messages(with_categories=true) %}
-        {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            <span class="alert-icon">{% if category == 'danger' %}⚠{% elif category == 'success' %}✓{% elif category == 'warning' %}⚡{% else %}ℹ{% endif %}</span>
-            {{ message }}
-          </div>
-        {% endfor %}
-      {% endwith %}
-
-      <!-- Google Sign-Up -->
-      <a href="{{ url_for('auth.google_login') }}" class="btn-google">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-          <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-        </svg>
-        Sign up with Google
-      </a>
-
-      <div class="auth-divider"><span>or register with email</span></div>
-
-      <form method="POST" action="{{ url_for('auth.register') }}">
-        <div class="field-row">
-          <div class="field-group">
-            <label class="field-label">Student ID</label>
-            <div class="field-wrap">
-              <span class="field-icon">🎓</span>
-              <input type="text" name="student_id" class="field-input"
-                     placeholder="2024-00001" required/>
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-label">Full Name</label>
-            <div class="field-wrap">
-              <span class="field-icon">👤</span>
-              <input type="text" name="full_name" class="field-input"
-                     placeholder="Juan Dela Cruz" required/>
-            </div>
-          </div>
+      <div class="step-item">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <h4>Verify your email</h4>
+          <p>A 6-digit OTP will be sent to confirm your identity and secure your account.</p>
         </div>
-        <div class="field-group">
-          <label class="field-label">Email Address</label>
-          <div class="field-wrap">
-            <span class="field-icon">✉</span>
-            <input type="email" name="email" class="field-input"
-                   placeholder="student@school.edu" required/>
-          </div>
+      </div>
+      <div class="step-item">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <h4>Get classified &amp; explore</h4>
+          <p>Your admin will classify your performance and you'll see your personalized pathway.</p>
         </div>
-        <div class="field-row">
-          <div class="field-group">
-            <label class="field-label">Password</label>
-            <div class="field-wrap">
-              <span class="field-icon">🔒</span>
-              <input type="password" name="password" id="passwordInput" class="field-input"
-                     placeholder="Min. 8 characters" required minlength="8"/>
-              <button type="button" class="field-toggle" onclick="togglePassword('passwordInput')">👁</button>
-            </div>
-          </div>
-          <div class="field-group">
-            <label class="field-label">Confirm Password</label>
-            <div class="field-wrap">
-              <span class="field-icon">🔒</span>
-              <input type="password" name="confirm_password" id="confirmInput" class="field-input"
-                     placeholder="Repeat password" required/>
-              <button type="button" class="field-toggle" onclick="togglePassword('confirmInput')">👁</button>
-            </div>
-          </div>
-        </div>
-        <button type="submit" class="btn-submit">
-          Create Account
-          <span class="btn-arrow">→</span>
-        </button>
-      </form>
-
-      <p class="auth-switch">
-        Already have an account?
-        <a href="{{ url_for('auth.login') }}">Sign in</a>
-      </p>
+      </div>
     </div>
   </div>
 
+  <div class="left-bottom">
+    <div class="trust-bar">
+      <div class="trust-item"><span>🔒</span> Secure &amp; Private</div>
+      <div class="trust-item"><span>📧</span> OTP Verified</div>
+      <div class="trust-item"><span>⚡</span> Instant Access</div>
+    </div>
+  </div>
 </div>
-<script>
-function togglePassword(id) {
-  const input = document.getElementById(id);
-  input.type = input.type === 'password' ? 'text' : 'password';
-}
-</script>
+
+<!-- RIGHT PANEL -->
+<div class="auth-panel-right">
+  <div class="auth-form-box">
+    <div class="form-header">
+      <h2>Create account</h2>
+      <p>Fill in your details to get started</p>
+    </div>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="alert alert-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <!-- Google -->
+    <a href="{{ url_for('auth.google_login') }}" class="btn-google">
+      <svg class="google-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      Sign up with Google
+    </a>
+
+    <div class="auth-divider"><span>or register with email</span></div>
+
+    <form method="POST" action="{{ url_for('auth.register') }}">
+      <div class="form-row">
+        <div class="input-group">
+          <label class="input-label">Student ID</label>
+          <input type="text" name="student_id" class="input-field" placeholder="2024-00001" required/>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Full Name</label>
+          <input type="text" name="full_name" class="input-field" placeholder="Juan Dela Cruz" required/>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <label class="input-label">Email Address</label>
+        <input type="email" name="email" class="input-field" placeholder="student@school.edu" required/>
+      </div>
+
+      <div class="form-row">
+        <div class="input-group">
+          <label class="input-label">Password</label>
+          <input type="password" name="password" class="input-field" placeholder="Min. 8 characters" required minlength="8"/>
+        </div>
+        <div class="input-group">
+          <label class="input-label">Confirm Password</label>
+          <input type="password" name="confirm_password" class="input-field" placeholder="Repeat password" required/>
+        </div>
+      </div>
+
+      <button type="submit" class="btn-submit">Create Account →</button>
+    </form>
+
+    <div class="form-footer">
+      Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+    </div>
+    <div class="terms-note">
+      By registering, you agree to your institution's academic data policy.
+    </div>
+  </div>
+</div>
+
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>
 </html>

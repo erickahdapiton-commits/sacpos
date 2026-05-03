@@ -2,14 +2,17 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
 from flask_migrate import Migrate
+from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 import os
+import re
 
 load_dotenv()
 
 db = SQLAlchemy()
 login_manager = LoginManager()
 migrate = Migrate()
+oauth = OAuth()
 
 
 def create_app():
@@ -21,26 +24,57 @@ def create_app():
 
     app.config['SECRET_KEY'] = os.getenv('SECRET_KEY', 'dev-secret-change-me')
 
-    # ── Turso (production on Vercel) ──────────────────────────────────────────
+    # ── Database ──────────────────────────────────────────────────────────────
     turso_url   = os.getenv('TURSO_DATABASE_URL', '')
     turso_token = os.getenv('TURSO_AUTH_TOKEN', '')
+    is_vercel   = os.getenv('VERCEL') or os.getenv('VERCEL_ENV')
 
     if turso_url and turso_token:
-        host = turso_url.replace('libsql://', '')
-        db_url = f"sqlite+libsql://{host}?authToken={turso_token}&secure=true"
+        # sqlalchemy-libsql connects via WebSocket (wss://) which Vercel
+        # serverless blocks → "505 Invalid response status".
+        # Fix: use our turso_http shim which calls libsql-client with an
+        # https:// URL, routing all traffic through Turso's HTTP API instead.
+        from app.turso_http import connect as turso_connect
+        from sqlalchemy.pool import NullPool
 
+        https_url = re.sub(r'^libsql://', 'https://', turso_url)
+
+        # Dummy URI — the actual connection comes from the creator callable.
+        app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite+pysqlite://'
+        app.config['SQLALCHEMY_ENGINE_OPTIONS'] = {
+            'creator': lambda: turso_connect(url=https_url, auth_token=turso_token),
+            'poolclass': NullPool,   # no persistent pool on serverless
+        }
+
+    elif is_vercel:
+        # Vercel but no Turso creds — fail loudly
+        raise RuntimeError(
+            "TURSO_DATABASE_URL and TURSO_AUTH_TOKEN must be set in Vercel "
+            "environment variables. Got: "
+            f"TURSO_DATABASE_URL={'set' if turso_url else 'MISSING'}, "
+            f"TURSO_AUTH_TOKEN={'set' if turso_token else 'MISSING'}"
+        )
     else:
-        # Local dev fallback — use /tmp (writable on all platforms)
+        # Local dev — plain SQLite
         db_url = os.getenv('DATABASE_URL', 'sqlite:////tmp/sacpos.db')
         if db_url.startswith('postgres://'):
             db_url = db_url.replace('postgres://', 'postgresql://', 1)
+        app.config['SQLALCHEMY_DATABASE_URI'] = db_url
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = db_url
     app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
     db.init_app(app)
     login_manager.init_app(app)
     migrate.init_app(app, db)
+    oauth.init_app(app)
+
+    oauth.register(
+        name='google',
+        client_id=os.getenv('GOOGLE_CLIENT_ID', ''),
+        client_secret=os.getenv('GOOGLE_CLIENT_SECRET', ''),
+        server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
+        client_kwargs={'scope': 'openid email profile'},
+    )
 
     login_manager.login_view = 'auth.login'
     login_manager.login_message = 'Please log in to access this page.'
@@ -52,15 +86,15 @@ def create_app():
         return User.query.get(int(user_id))
 
     # ── Blueprints ────────────────────────────────────────────────────────────
-    from app.controllers.auth_controller      import auth_bp
-    from app.controllers.admin_controller     import admin_bp
-    from app.controllers.student_controller   import student_bp
+    from app.controllers.auth_controller    import auth_bp
+    from app.controllers.admin_controller   import admin_bp
+    from app.controllers.student_controller import student_bp
 
     app.register_blueprint(auth_bp,    url_prefix='/auth')
     app.register_blueprint(admin_bp,   url_prefix='/admin')
     app.register_blueprint(student_bp, url_prefix='/student')
 
-    # ── Jinja2 globals
+    # ── Jinja2 globals ────────────────────────────────────────────────────────
     app.jinja_env.globals['enumerate'] = enumerate
     app.jinja_env.globals['zip']       = zip
 
@@ -104,4 +138,4 @@ def _seed_admin():
         )
         db.session.add(admin)
         db.session.commit()
-        print(f'[SAPCPOS] Admin seeded: {admin_email}')
+        print(f'[SACPOS] Admin seeded: {admin_email}')

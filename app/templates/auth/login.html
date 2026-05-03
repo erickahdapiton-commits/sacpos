@@ -4,102 +4,570 @@
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Sign In — SAPCPOS</title>
-  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}"/>
-  <link rel="stylesheet" href="{{ url_for('static', filename='css/auth.css') }}"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #dff0fb;
+      min-height: 100vh;
+      display: flex;
+      align-items: stretch;
+      overflow: hidden;
+    }
+
+    /* ── Animated background ── */
+    .bg-canvas {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 40%, #dbeafe 70%, #e0f2fe 100%);
+      overflow: hidden;
+    }
+    .bg-wave {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(70px);
+      opacity: 0.55;
+      animation: drift 14s ease-in-out infinite;
+    }
+    .bg-wave:nth-child(1) {
+      width: 600px; height: 600px;
+      background: radial-gradient(circle, #7dd3fc, transparent 70%);
+      top: -200px; left: -100px;
+      animation-duration: 16s;
+    }
+    .bg-wave:nth-child(2) {
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #38bdf8, transparent 70%);
+      bottom: -150px; right: -100px;
+      animation-duration: 20s;
+      animation-delay: -6s;
+    }
+    .bg-wave:nth-child(3) {
+      width: 380px; height: 380px;
+      background: radial-gradient(circle, #bfdbfe, transparent 70%);
+      top: 40%; left: 55%;
+      animation-duration: 18s;
+      animation-delay: -3s;
+    }
+    @keyframes drift {
+      0%, 100% { transform: translate(0, 0) scale(1); }
+      33%       { transform: translate(30px, -20px) scale(1.05); }
+      66%       { transform: translate(-20px, 30px) scale(0.97); }
+    }
+
+    /* ── Dot grid overlay ── */
+    .bg-dots {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none;
+      background-image: radial-gradient(circle, rgba(14,165,233,0.18) 1px, transparent 1px);
+      background-size: 28px 28px;
+    }
+
+    /* ── Page layout ── */
+    .page {
+      position: relative; z-index: 2;
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    /* ── Left panel ── */
+    .left-panel {
+      width: 52%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 52px 64px;
+    }
+
+    /* Brand */
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .brand-mark {
+      width: 44px; height: 44px;
+      background: linear-gradient(135deg, #0284c7, #38bdf8);
+      border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 6px 20px rgba(2,132,199,0.35);
+    }
+    .brand-text {
+      font-family: 'Outfit', sans-serif;
+      font-weight: 800;
+      font-size: 21px;
+      color: #0c4a6e;
+      letter-spacing: -0.5px;
+    }
+    .brand-sub {
+      font-size: 11px;
+      color: #64748b;
+      font-weight: 500;
+      letter-spacing: 0.3px;
+      margin-top: 1px;
+    }
+
+    /* Hero */
+    .hero { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 40px 0; }
+
+    .hero-eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      background: rgba(2,132,199,0.1);
+      border: 1px solid rgba(2,132,199,0.25);
+      border-radius: 30px;
+      padding: 5px 14px 5px 8px;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0284c7;
+      letter-spacing: 0.4px;
+      text-transform: uppercase;
+      margin-bottom: 28px;
+      width: fit-content;
+    }
+    .eyebrow-dot {
+      width: 8px; height: 8px;
+      background: #0ea5e9;
+      border-radius: 50%;
+      animation: blink 2s ease-in-out infinite;
+    }
+    @keyframes blink { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.4;transform:scale(1.4)} }
+
+    .hero-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: clamp(38px, 4vw, 58px);
+      font-weight: 900;
+      color: #0c4a6e;
+      line-height: 1.05;
+      letter-spacing: -2px;
+      margin-bottom: 22px;
+    }
+    .hero-title .accent {
+      display: inline;
+      background: linear-gradient(135deg, #0284c7 20%, #38bdf8 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero-desc {
+      font-size: 15.5px;
+      color: #475569;
+      line-height: 1.75;
+      max-width: 400px;
+      margin-bottom: 44px;
+      font-weight: 400;
+    }
+
+    /* Feature chips */
+    .chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .chip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.7);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: 50px;
+      padding: 8px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #0369a1;
+      backdrop-filter: blur(8px);
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(14,165,233,0.1);
+    }
+    .chip:hover {
+      background: rgba(255,255,255,0.95);
+      box-shadow: 0 4px 14px rgba(14,165,233,0.18);
+      transform: translateY(-1px);
+    }
+    .chip-icon { font-size: 16px; }
+
+    /* Bottom quote */
+    .quote-card {
+      background: rgba(255,255,255,0.6);
+      border: 1px solid rgba(14,165,233,0.18);
+      border-radius: 16px;
+      padding: 20px 24px;
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      box-shadow: 0 4px 20px rgba(14,165,233,0.08);
+    }
+    .quote-avatar {
+      width: 42px; height: 42px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0ea5e9, #38bdf8);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 800; font-size: 16px; color: #fff;
+      flex-shrink: 0;
+      box-shadow: 0 3px 10px rgba(14,165,233,0.3);
+    }
+    .quote-stars { color: #f59e0b; font-size: 12px; margin-bottom: 4px; }
+    .quote-text {
+      font-size: 13.5px;
+      color: #334155;
+      line-height: 1.65;
+      font-style: italic;
+    }
+    .quote-author {
+      font-size: 12px;
+      color: #64748b;
+      font-weight: 700;
+      margin-top: 6px;
+      font-style: normal;
+    }
+
+    /* ── Right panel (form) ── */
+    .right-panel {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px 48px;
+    }
+
+    .form-card {
+      width: 100%;
+      max-width: 420px;
+      background: rgba(255,255,255,0.85);
+      border: 1px solid rgba(14,165,233,0.2);
+      border-radius: 24px;
+      padding: 40px 40px;
+      backdrop-filter: blur(20px);
+      box-shadow:
+        0 8px 40px rgba(2,132,199,0.12),
+        0 1px 0 rgba(255,255,255,0.9) inset;
+      animation: slideUp 0.5s cubic-bezier(0.16,1,0.3,1) both;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(24px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .form-head {
+      margin-bottom: 28px;
+    }
+    .form-head-label {
+      display: inline-block;
+      font-size: 11px;
+      font-weight: 800;
+      color: #0284c7;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      background: rgba(2,132,199,0.1);
+      padding: 4px 10px;
+      border-radius: 6px;
+      margin-bottom: 12px;
+    }
+    .form-head h2 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: #0c4a6e;
+      letter-spacing: -0.8px;
+      margin-bottom: 5px;
+    }
+    .form-head p {
+      font-size: 14px;
+      color: #64748b;
+    }
+
+    /* Alerts */
+    .alert {
+      padding: 12px 15px;
+      border-radius: 10px;
+      font-size: 13px;
+      margin-bottom: 18px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .alert-danger  { background: rgba(239,68,68,0.08);  border: 1px solid rgba(239,68,68,0.22);  color: #dc2626; }
+    .alert-success { background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.22); color: #059669; }
+    .alert-warning { background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.22); color: #d97706; }
+    .alert-info    { background: rgba(14,165,233,0.08); border: 1px solid rgba(14,165,233,0.22); color: #0284c7; }
+
+    /* Google btn */
+    .btn-google {
+      width: 100%;
+      display: flex; align-items: center; justify-content: center; gap: 11px;
+      padding: 13px 20px;
+      background: #fff;
+      color: #1e293b;
+      border: 1.5px solid #c5dff8;
+      border-radius: 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px; font-weight: 600;
+      cursor: pointer; text-decoration: none;
+      transition: all 0.2s;
+      box-shadow: 0 2px 8px rgba(14,165,233,0.1);
+    }
+    .btn-google:hover {
+      background: #f0f9ff;
+      border-color: #7dd3fc;
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(14,165,233,0.18);
+      text-decoration: none; color: #1e293b;
+    }
+    .google-icon { width: 20px; height: 20px; flex-shrink: 0; }
+
+    /* Divider */
+    .divider {
+      display: flex; align-items: center; gap: 12px;
+      margin: 22px 0;
+    }
+    .divider::before, .divider::after {
+      content: ''; flex: 1; height: 1px;
+      background: #c5dff8;
+    }
+    .divider span {
+      font-size: 12px; color: #94a3b8; font-weight: 600;
+      white-space: nowrap; text-transform: uppercase; letter-spacing: 0.4px;
+    }
+
+    /* Inputs */
+    .field { margin-bottom: 16px; }
+    .field-label {
+      display: block;
+      font-size: 12px; font-weight: 700;
+      color: #475569;
+      text-transform: uppercase; letter-spacing: 0.5px;
+      margin-bottom: 7px;
+    }
+    .field-wrap { position: relative; }
+    .field-icon {
+      position: absolute; left: 14px; top: 50%;
+      transform: translateY(-50%);
+      font-size: 15px; opacity: 0.45; pointer-events: none;
+    }
+    .field-input {
+      width: 100%;
+      padding: 12px 14px 12px 40px;
+      background: rgba(255,255,255,0.9);
+      border: 1.5px solid #c5dff8;
+      border-radius: 11px;
+      color: #0f172a;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 14px;
+      outline: none;
+      transition: all 0.2s;
+    }
+    .field-input::placeholder { color: #94a3b8; }
+    .field-input:focus {
+      border-color: #0ea5e9;
+      background: #fff;
+      box-shadow: 0 0 0 4px rgba(14,165,233,0.12);
+    }
+    .field-toggle {
+      position: absolute; right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer; font-size: 15px;
+      opacity: 0.4; padding: 4px;
+      transition: opacity 0.15s;
+    }
+    .field-toggle:hover { opacity: 0.75; }
+
+    /* Submit */
+    .btn-submit {
+      width: 100%;
+      padding: 14px 20px;
+      background: linear-gradient(135deg, #0284c7, #0ea5e9 60%, #38bdf8);
+      color: #fff;
+      border: none; border-radius: 12px;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      font-size: 15px; font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-top: 6px;
+      box-shadow: 0 6px 22px rgba(2,132,199,0.35);
+      display: flex; align-items: center; justify-content: center; gap: 8px;
+      position: relative; overflow: hidden;
+    }
+    .btn-submit::after {
+      content: '';
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.12) 50%, transparent 100%);
+      transform: translateX(-100%);
+      transition: transform 0.5s;
+    }
+    .btn-submit:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 30px rgba(2,132,199,0.4);
+    }
+    .btn-submit:hover::after { transform: translateX(100%); }
+    .btn-submit:active { transform: scale(0.98); }
+    .btn-arrow { transition: transform 0.2s; }
+    .btn-submit:hover .btn-arrow { transform: translateX(4px); }
+
+    /* Footer */
+    .form-foot {
+      text-align: center;
+      margin-top: 22px;
+      font-size: 13.5px;
+      color: #64748b;
+    }
+    .form-foot a { color: #0284c7; font-weight: 700; text-decoration: none; }
+    .form-foot a:hover { text-decoration: underline; }
+
+    /* Secure note */
+    .secure-note {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 18px;
+      font-size: 11.5px;
+      color: #94a3b8;
+      font-weight: 500;
+    }
+    .secure-note span { font-size: 13px; }
+
+    /* ── Responsive ── */
+    @media (max-width: 900px) {
+      body { align-items: flex-start; overflow-y: auto; }
+      .left-panel { display: none; }
+      .right-panel { padding: 32px 20px; min-height: 100vh; }
+    }
+  </style>
 </head>
 <body>
-<div class="auth-split">
 
-  <!-- Left panel — branding -->
-  <div class="auth-brand">
-    <div class="auth-brand-inner">
-      <div class="brand-logo">
-        <span class="brand-icon">📊</span>
-        <span class="brand-name">SAPCPOS</span>
-      </div>
-      <h2 class="brand-tagline">Academic performance,<br/>clarified.</h2>
-      <p class="brand-sub">Track grades, classify students, and unlock personalised learning pathways — all in one place.</p>
-      <div class="brand-stats">
-        <div class="brand-stat"><span class="stat-num">3</span><span class="stat-lbl">Pathways</span></div>
-        <div class="brand-stat"><span class="stat-num">AI</span><span class="stat-lbl">Powered</span></div>
-        <div class="brand-stat"><span class="stat-num">∞</span><span class="stat-lbl">Insights</span></div>
+<!-- Background -->
+<div class="bg-canvas">
+  <div class="bg-wave"></div>
+  <div class="bg-wave"></div>
+  <div class="bg-wave"></div>
+</div>
+<div class="bg-dots"></div>
+
+<div class="page">
+
+  <!-- ── Left Panel ── -->
+  <div class="left-panel">
+    <!-- Brand -->
+    <div class="brand">
+      <div class="brand-mark">📊</div>
+      <div>
+        <div class="brand-text">SAPCPOS</div>
+        <div class="brand-sub">Academic Performance System</div>
       </div>
     </div>
-    <div class="brand-bg-shapes">
-      <div class="shape shape-1"></div>
-      <div class="shape shape-2"></div>
-      <div class="shape shape-3"></div>
+
+    <!-- Hero copy -->
+    <div class="hero">
+      <div class="hero-eyebrow">
+        <div class="eyebrow-dot"></div>
+        AI-Powered Academic System
+      </div>
+      <h1 class="hero-title">
+        Student Performance,<br/>
+        <span class="accent">Reimagined.</span>
+      </h1>
+      <p class="hero-desc">
+        Classify students, map personalized learning pathways with Dijkstra's algorithm, and surface live GPA insights — all from one elegant dashboard.
+      </p>
+      <div class="chips">
+        <div class="chip"><span class="chip-icon">🎯</span> Decision Tree AI</div>
+        <div class="chip"><span class="chip-icon">🗺️</span> Pathway Finder</div>
+        <div class="chip"><span class="chip-icon">📈</span> GPA Analytics</div>
+        <div class="chip"><span class="chip-icon">🔔</span> Smart Alerts</div>
+      </div>
+    </div>
+
+    <!-- Testimonial -->
+    <div class="quote-card">
+      <div class="quote-avatar">S</div>
+      <div>
+        <div class="quote-stars">★★★★★</div>
+        <p class="quote-text">"SAPCPOS helped me understand exactly where I stood and what to prioritize. My GPA improved by 0.4 points in one semester."</p>
+        <div class="quote-author">— Student, BS Computer Science</div>
+      </div>
     </div>
   </div>
 
-  <!-- Right panel — form -->
-  <div class="auth-form-panel">
-    <div class="auth-form-inner">
-      <div class="auth-form-header">
-        <h1>Welcome back</h1>
-        <p>Sign in to your SAPCPOS account</p>
+  <!-- ── Right Panel (Form) ── -->
+  <div class="right-panel">
+    <div class="form-card">
+      <div class="form-head">
+        <div class="form-head-label">Welcome back</div>
+        <h2>Sign in to your account</h2>
+        <p>Enter your credentials to continue</p>
       </div>
 
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
-          <div class="alert alert-{{ category }}">
-            <span class="alert-icon">{% if category == 'danger' %}⚠{% elif category == 'success' %}✓{% elif category == 'warning' %}⚡{% else %}ℹ{% endif %}</span>
-            {{ message }}
-          </div>
+          <div class="alert alert-{{ category }}">{{ message }}</div>
         {% endfor %}
       {% endwith %}
 
-      <!-- Google Sign-In -->
+      <!-- Google -->
       <a href="{{ url_for('auth.google_login') }}" class="btn-google">
-        <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
-          <path d="M17.64 9.205c0-.639-.057-1.252-.164-1.841H9v3.481h4.844a4.14 4.14 0 01-1.796 2.716v2.259h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-          <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 7.29C4.672 5.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        <svg class="google-icon" viewBox="0 0 24 24">
+          <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
         </svg>
         Continue with Google
       </a>
 
-      <div class="auth-divider"><span>or sign in with email</span></div>
+      <div class="divider"><span>or sign in with email</span></div>
 
+      <!-- Form -->
       <form method="POST" action="{{ url_for('auth.login') }}">
-        <div class="field-group">
+        <div class="field">
           <label class="field-label">Email Address</label>
           <div class="field-wrap">
-            <span class="field-icon">✉</span>
-            <input type="email" name="email" class="field-input"
-                   placeholder="your@email.com" required autofocus/>
+            <span class="field-icon">✉️</span>
+            <input type="email" name="email" class="field-input" placeholder="your@email.com" required autofocus/>
           </div>
         </div>
-        <div class="field-group">
+        <div class="field">
           <label class="field-label">Password</label>
           <div class="field-wrap">
             <span class="field-icon">🔒</span>
-            <input type="password" name="password" id="passwordInput" class="field-input"
-                   placeholder="••••••••" required/>
-            <button type="button" class="field-toggle" onclick="togglePassword()">👁</button>
+            <input type="password" name="password" id="pw" class="field-input" placeholder="••••••••" required/>
+            <button type="button" class="field-toggle" onclick="togglePw()">👁️</button>
           </div>
         </div>
         <button type="submit" class="btn-submit">
-          Sign In
-          <span class="btn-arrow">→</span>
+          Sign In <span class="btn-arrow">→</span>
         </button>
       </form>
 
-      <p class="auth-switch">
-        Don't have an account?
-        <a href="{{ url_for('auth.register') }}">Create one free</a>
-      </p>
+      <div class="form-foot">
+        No account yet? <a href="{{ url_for('auth.register') }}">Create one free</a>
+      </div>
+
+      <div class="secure-note">
+        <span>🔐</span> Secured with encrypted authentication
+      </div>
     </div>
   </div>
 
 </div>
+
 <script>
-function togglePassword() {
-  const input = document.getElementById('passwordInput');
-  input.type = input.type === 'password' ? 'text' : 'password';
-}
+  function togglePw() {
+    const pw = document.getElementById('pw');
+    const btn = pw.nextElementSibling;
+    if (pw.type === 'password') { pw.type = 'text'; btn.textContent = '🙈'; }
+    else { pw.type = 'password'; btn.textContent = '👁️'; }
+  }
 </script>
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>
 </body>

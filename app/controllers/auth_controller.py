@@ -1,9 +1,6 @@
-import os
-import secrets
-import requests as http_requests
 from flask import Blueprint, render_template, redirect, url_for, flash, request, session
 from flask_login import login_user, logout_user, login_required, current_user
-from app import db
+from app import db, oauth
 from app.models.user import User
 from app.models.student import Student
 from app.services.auth_service import (
@@ -15,14 +12,68 @@ from app.services.notification_service import log_activity
 
 auth_bp = Blueprint('auth', __name__)
 
-# ── Google OAuth config ───────────────────────────────────────────────────────
-GOOGLE_CLIENT_ID     = os.getenv('GOOGLE_CLIENT_ID', '')
-GOOGLE_CLIENT_SECRET = os.getenv('GOOGLE_CLIENT_SECRET', '')
-GOOGLE_REDIRECT_URI  = os.getenv('GOOGLE_REDIRECT_URI', 'http://localhost:5000/auth/google/callback')
 
-GOOGLE_AUTH_URL  = 'https://accounts.google.com/o/oauth2/v2/auth'
-GOOGLE_TOKEN_URL = 'https://oauth2.googleapis.com/token'
-GOOGLE_USERINFO  = 'https://www.googleapis.com/oauth2/v3/userinfo'
+# ── Google OAuth ───────────────────────────────────────────────────────────────
+
+@auth_bp.route('/google')
+def google_login():
+    redirect_uri = url_for('auth.google_callback', _external=True)
+    return oauth.google.authorize_redirect(redirect_uri)
+
+
+@auth_bp.route('/google/callback')
+def google_callback():
+    try:
+        token     = oauth.google.authorize_access_token()
+        user_info = token.get('userinfo')
+    except Exception as e:
+        flash('Google login failed. Please try again.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    if not user_info:
+        flash('Could not retrieve Google account info.', 'danger')
+        return redirect(url_for('auth.login'))
+
+    email      = user_info.get('email', '').strip().lower()
+    full_name  = user_info.get('name', '')
+    google_id  = user_info.get('sub', '')
+    avatar_url = user_info.get('picture', '')
+
+    user = User.query.filter_by(email=email).first()
+
+    if user:
+        # Link Google ID if not already linked
+        if not user.google_id:
+            user.google_id  = google_id
+            user.avatar_url = avatar_url
+            user.is_verified = True
+            db.session.commit()
+    else:
+        # Create brand-new user via Google
+        user = User(
+            email=email,
+            full_name=full_name,
+            password_hash=None,
+            role='student',
+            is_verified=True,
+            google_id=google_id,
+            avatar_url=avatar_url,
+        )
+        db.session.add(user)
+        db.session.flush()
+
+        student = Student(
+            user_id=user.id,
+            student_id=f'G-{user.id:05d}',   # auto-generated placeholder
+            full_name=full_name,
+            email=email,
+        )
+        db.session.add(student)
+        db.session.commit()
+
+    login_user(user, remember=True)
+    log_activity(user.id, 'GOOGLE_LOGIN', f'Email: {email}')
+    return _redirect_home()
 
 
 # ── Login ─────────────────────────────────────────────────────────────────────
@@ -59,10 +110,10 @@ def register():
         return _redirect_home()
 
     if request.method == 'POST':
-        email      = request.form.get('email', '').strip().lower()
-        full_name  = request.form.get('full_name', '').strip()
-        password   = request.form.get('password', '')
-        confirm    = request.form.get('confirm_password', '')
+        email     = request.form.get('email', '').strip().lower()
+        full_name = request.form.get('full_name', '').strip()
+        password  = request.form.get('password', '')
+        confirm   = request.form.get('confirm_password', '')
         student_id = request.form.get('student_id', '').strip()
 
         if password != confirm:
@@ -85,7 +136,7 @@ def register():
             is_verified=False,
         )
         db.session.add(user)
-        db.session.flush()
+        db.session.flush()  # get user.id
 
         student = Student(
             user_id=user.id,
@@ -148,131 +199,6 @@ def resend_otp():
         _send_new_otp(user)
         flash('A new OTP has been sent to your email.', 'info')
     return redirect(url_for('auth.verify_otp'))
-
-
-# ── Google OAuth ──────────────────────────────────────────────────────────────
-
-@auth_bp.route('/google/login')
-def google_login():
-    if not GOOGLE_CLIENT_ID:
-        flash('Google Sign-In is not configured yet. Contact the administrator.', 'warning')
-        return redirect(url_for('auth.login'))
-
-    state = secrets.token_urlsafe(16)
-    session['oauth_state'] = state
-
-    params = {
-        'client_id':     GOOGLE_CLIENT_ID,
-        'redirect_uri':  GOOGLE_REDIRECT_URI,
-        'response_type': 'code',
-        'scope':         'openid email profile',
-        'state':         state,
-        'access_type':   'online',
-        'prompt':        'select_account',
-    }
-    query = '&'.join(f'{k}={v}' for k, v in params.items())
-    return redirect(f'{GOOGLE_AUTH_URL}?{query}')
-
-
-@auth_bp.route('/google/callback')
-def google_callback():
-    # Validate state
-    if request.args.get('state') != session.pop('oauth_state', None):
-        flash('OAuth state mismatch. Please try again.', 'danger')
-        return redirect(url_for('auth.login'))
-
-    error = request.args.get('error')
-    if error:
-        flash(f'Google sign-in was cancelled or failed: {error}', 'danger')
-        return redirect(url_for('auth.login'))
-
-    code = request.args.get('code')
-    if not code:
-        flash('No authorisation code received from Google.', 'danger')
-        return redirect(url_for('auth.login'))
-
-    # Exchange code for tokens
-    token_resp = http_requests.post(GOOGLE_TOKEN_URL, data={
-        'code':          code,
-        'client_id':     GOOGLE_CLIENT_ID,
-        'client_secret': GOOGLE_CLIENT_SECRET,
-        'redirect_uri':  GOOGLE_REDIRECT_URI,
-        'grant_type':    'authorization_code',
-    })
-
-    if not token_resp.ok:
-        flash('Failed to retrieve Google access token.', 'danger')
-        return redirect(url_for('auth.login'))
-
-    access_token = token_resp.json().get('access_token')
-
-    # Fetch user info
-    userinfo_resp = http_requests.get(
-        GOOGLE_USERINFO,
-        headers={'Authorization': f'Bearer {access_token}'}
-    )
-
-    if not userinfo_resp.ok:
-        flash('Failed to retrieve Google user info.', 'danger')
-        return redirect(url_for('auth.login'))
-
-    info      = userinfo_resp.json()
-    google_id = info.get('sub')
-    email     = info.get('email', '').lower().strip()
-    full_name = info.get('name', email.split('@')[0])
-
-    if not email:
-        flash('Could not get email from Google. Please use email/password sign-in.', 'danger')
-        return redirect(url_for('auth.login'))
-
-    # Find or create user
-    user = User.query.filter_by(email=email).first()
-
-    if user:
-        # Existing user — log in directly (Google-verified email)
-        if not user.is_active:
-            flash('Your account has been deactivated.', 'danger')
-            return redirect(url_for('auth.login'))
-        user.is_verified = True           # Google email is trusted
-        db.session.commit()
-        login_user(user, remember=True)
-        log_activity(user.id, 'GOOGLE_LOGIN', f'Google ID: {google_id}')
-        flash(f'Welcome back, {user.full_name}!', 'success')
-        return _redirect_home()
-    else:
-        # New user via Google — create account, skip OTP
-        user = User(
-            email=email,
-            full_name=full_name,
-            password_hash=None,   # No password for Google accounts
-            role='student',
-            is_verified=True,     # Google already verified
-        )
-        db.session.add(user)
-        db.session.flush()
-
-        # We need a unique student_id; generate a placeholder the admin can update
-        import re
-        safe_name = re.sub(r'[^a-z0-9]', '', full_name.lower())[:8]
-        placeholder_id = f'G-{safe_name[:6]}-{user.id}'
-
-        student = Student(
-            user_id=user.id,
-            student_id=placeholder_id,
-            full_name=full_name,
-            email=email,
-        )
-        db.session.add(student)
-        db.session.commit()
-
-        login_user(user, remember=True)
-        log_activity(user.id, 'GOOGLE_REGISTER', f'Google ID: {google_id}')
-        flash(
-            'Account created via Google! Your temporary Student ID is '
-            f'<strong>{placeholder_id}</strong>. Please ask your admin to update it.',
-            'info'
-        )
-        return _redirect_home()
 
 
 # ── Logout ────────────────────────────────────────────────────────────────────

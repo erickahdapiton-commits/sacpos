@@ -16,6 +16,8 @@ class User(UserMixin, db.Model):
     otp_code      = db.Column(db.String(6), nullable=True)
     otp_expires   = db.Column(db.DateTime, nullable=True)
     created_at    = db.Column(db.DateTime, default=datetime.utcnow)
+    google_id     = db.Column(db.String(120), nullable=True, unique=True, index=True)
+    avatar_url    = db.Column(db.String(512), nullable=True)
 
     # One-to-one with Student record
     student = db.relationship('Student', backref='user', uselist=False)
