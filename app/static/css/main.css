@@ -477,10 +477,9 @@ select.form-control { cursor: pointer; }
     transform: translateX(0);
   }
 
-  /* Show hamburger button */
+  /* Hide hamburger — bottom nav replaces sidebar on mobile */
   #menu-toggle {
-    display: inline-flex !important;
-    flex-shrink: 0;
+    display: none !important;
   }
 
   /* Main content fills full width */
