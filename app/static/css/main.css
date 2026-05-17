@@ -602,3 +602,122 @@ select.form-control { cursor: pointer; }
   .topbar { padding: 0 12px; }
   .mobile-nav-label { font-size: 8.5px; }
 }
+/* ══════════════════════════════════════════════════════
+   MOBILE FIXES — Android / iOS comprehensive patch
+══════════════════════════════════════════════════════ */
+
+/* ── Prevent horizontal scroll on any page ── */
+html, body { overflow-x: hidden; max-width: 100vw; }
+
+/* ── Input zoom prevention on iOS (font-size must be ≥16px) ── */
+@media (max-width: 768px) {
+  input, select, textarea, .form-control {
+    font-size: 16px !important; /* prevents iOS auto-zoom on focus */
+  }
+  .otp-input { font-size: 28px !important; letter-spacing: 8px; }
+
+  /* ── SABot: above bottom nav, not overlapping ── */
+  #sabot-launcher {
+    bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 12px) !important;
+    right: 14px !important;
+    width: 50px !important; height: 50px !important;
+  }
+
+  /* ── SABot window: full-screen on mobile ── */
+  #sabot-window {
+    position: fixed !important;
+    top: 0 !important; left: 0 !important;
+    right: 0 !important; bottom: 0 !important;
+    width: 100% !important; height: 100% !important;
+    border-radius: 0 !important;
+    z-index: 10000 !important;
+  }
+  body.sabot-active { overflow: hidden !important; }
+
+  /* ── Profile: logout button wrapping fix ── */
+  .profile-header-row {
+    flex-wrap: wrap !important;
+    gap: 12px !important;
+  }
+
+  /* ── Topbar: clamp title ── */
+  .topbar-title {
+    font-size: 14px !important;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: 55vw;
+  }
+
+  /* ── Topbar actions: shrink buttons ── */
+  .topbar-actions .btn { padding: 5px 10px !important; font-size: 11px !important; }
+  .topbar-actions .btn svg { width: 13px !important; height: 13px !important; }
+
+  /* ── Cards: reduce padding ── */
+  .card { padding: 14px !important; border-radius: 10px !important; }
+
+  /* ── Auth card full width ── */
+  .auth-card { border-radius: 14px !important; }
+  .auth-body { padding: 20px 18px !important; }
+  .auth-header { padding: 22px 18px !important; }
+  .auth-header h1 { font-size: 20px !important; }
+
+  /* ── Stat cards: 2 cols, smaller text ── */
+  .stat-card .value { font-size: 22px !important; }
+  .stat-card .label { font-size: 10px !important; }
+
+  /* ── Table: smaller text, scrollable ── */
+  table { min-width: 520px !important; font-size: 12px !important; }
+  thead th { padding: 9px 10px !important; font-size: 10px !important; }
+  tbody td  { padding: 10px 10px !important; font-size: 12px !important; }
+
+  /* ── Pathway steps: wrap nicely ── */
+  .pathway-steps { gap: 6px !important; }
+  .pathway-step  { padding: 6px 10px !important; font-size: 12px !important; }
+
+  /* ── Analytics charts: constrain width ── */
+  canvas { max-width: 100% !important; height: auto !important; }
+
+  /* ── Notification items ── */
+  .reason-item { font-size: 12px !important; }
+
+  /* ── Rankings table ── */
+  .rank-badge { width: 26px !important; height: 26px !important; font-size: 11px !important; }
+  .gpa-bar-wrap { width: 70px !important; }
+
+  /* ── Badges ── */
+  .badge { font-size: 10px !important; padding: 3px 8px !important; }
+
+  /* ── Class pill ── */
+  .class-pill { font-size: 14px !important; padding: 8px 16px !important; }
+
+  /* ── d-flex wrapping on mobile ── */
+  .d-flex.mobile-wrap { flex-wrap: wrap !important; }
+
+  /* ── Interests checkboxes in profile ── */
+  .interest-grid { flex-wrap: wrap !important; gap: 8px !important; }
+  .interest-grid label { padding: 10px 14px !important; font-size: 13px !important; }
+
+  /* ── Search bar full width ── */
+  .search-bar { flex-direction: column !important; }
+  .search-bar .form-control,
+  .search-bar .btn { width: 100% !important; max-width: 100% !important; }
+
+  /* ── Buttons full width when stacked ── */
+  .btn-block-mobile { width: 100% !important; justify-content: center !important; }
+
+  /* ── Admin action buttons in table ── */
+  tbody td .btn { padding: 4px 8px !important; font-size: 11px !important; }
+  tbody td .btn svg { width: 12px !important; height: 12px !important; }
+}
+
+/* ── Very small phones (≤380px) ── */
+@media (max-width: 380px) {
+  .stats-grid { grid-template-columns: 1fr !important; }
+  .stat-card .value { font-size: 20px !important; }
+  .page-body { padding: 10px !important; padding-bottom: calc(var(--bottom-nav-h) + env(safe-area-inset-bottom) + 10px) !important; }
+  .topbar { padding: 0 10px !important; }
+  .mobile-nav-label { font-size: 8px !important; }
+  #sabot-launcher { width: 44px !important; height: 44px !important; right: 10px !important; }
+  .form-grid-2 { grid-template-columns: 1fr !important; }
+}

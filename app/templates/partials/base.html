@@ -487,25 +487,22 @@
   var inp = document.getElementById('sabot-input');
   if(inp){ inp.addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,80)+'px'; }); }
 
-  // iOS/Android keyboard resize handling
+  // iOS/Android keyboard: shrink chat window to visible area when keyboard opens
   if(window.visualViewport){
-    window.visualViewport.addEventListener('resize', function(){
+    var _vvHandler = function(){
       var w = document.getElementById('sabot-window');
       if(!w || !w.classList.contains('sabot-open')) return;
       var vv = window.visualViewport;
-      var kbHeight = window.innerHeight - vv.height - vv.offsetTop;
-      if(kbHeight > 50){
-        w.style.height = vv.height + 'px';
-        w.style.top    = vv.offsetTop + 'px';
-        w.style.bottom = 'auto';
-      } else {
-        w.style.height = '';
-        w.style.top    = '';
-        w.style.bottom = '';
-      }
+      // Apply visible viewport dimensions so input stays above keyboard
+      w.style.height = vv.height + 'px';
+      w.style.top    = vv.offsetTop + 'px';
+      w.style.left   = vv.offsetLeft + 'px';
+      w.style.width  = vv.width + 'px';
       var msgs = document.getElementById('sabot-messages');
-      if(msgs) msgs.scrollTop = msgs.scrollHeight;
-    });
+      if(msgs) setTimeout(function(){ msgs.scrollTop = msgs.scrollHeight; }, 50);
+    };
+    window.visualViewport.addEventListener('resize', _vvHandler);
+    window.visualViewport.addEventListener('scroll', _vvHandler);
   }
 })();
 </script>
