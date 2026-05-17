@@ -10,118 +10,160 @@
   {% block head %}{% endblock %}
 
   <style>
-    /* ═══════════════════════════════════════════
-       MOBILE BOTTOM NAV — only shown on mobile
-    ═══════════════════════════════════════════ */
-    .mobile-bottom-nav {
-      display: none; /* hidden on desktop */
-    }
-
+    /* ═══════════════════════════ MOBILE BOTTOM NAV ═══════════════════════════ */
+    .mobile-bottom-nav { display: none; }
     @media (max-width: 768px) {
-      /* Push page content up so it's not hidden behind the nav */
-      .page-body {
-        padding-bottom: 80px !important;
-      }
-
+      .page-body { padding-bottom: 80px !important; }
       .mobile-bottom-nav {
-        display: flex;
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        z-index: 9999;
-        background: rgba(255, 255, 255, 0.95);
-        backdrop-filter: blur(16px);
+        display: flex; position: fixed; bottom: 0; left: 0; right: 0; z-index: 9999;
+        background: rgba(255,255,255,0.95); backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border-top: 1px solid rgba(14, 165, 233, 0.15);
-        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.08);
-        padding: 0;
-        /* iOS safe area support */
-        padding-bottom: env(safe-area-inset-bottom);
+        border-top: 1px solid rgba(14,165,233,0.15);
+        box-shadow: 0 -4px 24px rgba(0,0,0,0.08);
+        padding: 0; padding-bottom: env(safe-area-inset-bottom);
       }
-
       .mobile-nav-item {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        padding: 10px 4px 8px;
-        text-decoration: none;
-        color: #94a3b8;
-        font-family: 'Outfit', sans-serif;
-        font-size: 10px;
-        font-weight: 500;
-        letter-spacing: 0.2px;
-        transition: all 0.2s;
-        position: relative;
-        gap: 4px;
-        min-height: 56px;
+        flex: 1; display: flex; flex-direction: column; align-items: center;
+        justify-content: center; padding: 10px 4px 8px; text-decoration: none;
+        color: #94a3b8; font-family: 'Outfit', sans-serif; font-size: 10px;
+        font-weight: 500; letter-spacing: 0.2px; transition: all 0.2s;
+        position: relative; gap: 4px; min-height: 56px;
       }
-
-      .mobile-nav-item.active {
-        color: #0ea5e9;
-      }
-
-      .mobile-nav-item:hover {
-        color: #0ea5e9;
-        text-decoration: none;
-      }
-
-      /* Active indicator pill */
+      .mobile-nav-item.active { color: #0ea5e9; }
+      .mobile-nav-item:hover { color: #0ea5e9; text-decoration: none; }
       .mobile-nav-item.active::before {
-        content: '';
-        position: absolute;
-        top: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 32px;
-        height: 3px;
-        background: #0ea5e9;
-        border-radius: 0 0 4px 4px;
+        content: ''; position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+        width: 32px; height: 3px; background: #0ea5e9; border-radius: 0 0 4px 4px;
       }
-
       .mobile-nav-icon {
-        width: 26px;
-        height: 26px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        border-radius: 8px;
-        font-size: 18px;
-        transition: all 0.2s;
-        position: relative;
+        width: 26px; height: 26px; display: flex; align-items: center;
+        justify-content: center; border-radius: 8px; transition: all 0.2s; position: relative;
       }
-
-      .mobile-nav-item.active .mobile-nav-icon {
-        background: rgba(14, 165, 233, 0.1);
-        transform: scale(1.1);
-      }
-
-      .mobile-nav-label {
-        font-size: 9.5px;
-        font-weight: 600;
-        line-height: 1;
-      }
-
-      /* Notification badge */
+      .mobile-nav-icon svg { width: 20px; height: 20px; }
+      .mobile-nav-item.active .mobile-nav-icon { background: rgba(14,165,233,0.1); transform: scale(1.1); }
+      .mobile-nav-label { font-size: 9.5px; font-weight: 600; line-height: 1; }
       .mobile-nav-badge {
-        position: absolute;
-        top: -3px;
-        right: -4px;
-        width: 16px;
-        height: 16px;
-        background: #ef4444;
-        color: #fff;
-        font-size: 8px;
-        font-weight: 700;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
+        position: absolute; top: -3px; right: -4px; width: 16px; height: 16px;
+        background: #ef4444; color: #fff; font-size: 8px; font-weight: 700;
+        border-radius: 50%; display: flex; align-items: center; justify-content: center;
         border: 1.5px solid #fff;
       }
     }
+
+    /* ═══════════════════════════ SABOT CHATBOT ═══════════════════════════════ */
+    #sabot-launcher {
+      position: fixed; bottom: 88px; right: 20px; z-index: 9998;
+      width: 56px; height: 56px; border-radius: 50%; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      box-shadow: 0 4px 20px rgba(14,165,233,0.45);
+      display: flex; align-items: center; justify-content: center;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    #sabot-launcher:hover { transform: scale(1.08); box-shadow: 0 6px 28px rgba(14,165,233,0.55); }
+    @media (max-width: 768px) { #sabot-launcher { bottom: 76px; right: 14px; width: 50px; height: 50px; } }
+
+    #sabot-window {
+      display: none; flex-direction: column;
+      position: fixed; bottom: 156px; right: 20px; z-index: 9997;
+      width: 340px; height: 480px; border-radius: 18px;
+      background: #fff; box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+      overflow: hidden; animation: sabotIn .25s ease;
+    }
+    #sabot-window.sabot-open { display: flex; }
+    @keyframes sabotIn { from { opacity:0; transform: scale(0.92) translateY(12px); } to { opacity:1; transform: none; } }
+
+    @media (max-width: 600px) {
+      #sabot-window {
+        position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+        width: 100%; height: 100%; border-radius: 0; z-index: 10000;
+      }
+      body.sabot-active { overflow: hidden; }
+      #sabot-launcher { bottom: 76px; }
+    }
+
+    .sabot-header {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      padding: 14px 16px; display: flex; align-items: center; gap: 10px; flex-shrink: 0;
+    }
+    .sabot-header-avatar {
+      width: 36px; height: 36px; border-radius: 50%;
+      background: rgba(255,255,255,0.18); display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .sabot-header-info { flex: 1; }
+    .sabot-header-info h4 { margin: 0; font-size: 14px; font-weight: 700; color: #fff; }
+    .sabot-header-info p  { margin: 0; font-size: 11px; color: rgba(255,255,255,0.8); }
+    .sabot-closebtn {
+      background: none; border: none; color: rgba(255,255,255,0.8); font-size: 18px;
+      cursor: pointer; padding: 4px; line-height: 1; border-radius: 6px;
+    }
+    .sabot-closebtn:hover { color: #fff; background: rgba(255,255,255,0.15); }
+
+    .sabot-messages {
+      flex: 1; overflow-y: auto; padding: 14px; display: flex;
+      flex-direction: column; gap: 10px; -webkit-overflow-scrolling: touch; min-height: 0;
+    }
+    .sabot-msg {
+      max-width: 82%; padding: 9px 13px; border-radius: 14px;
+      font-size: 13.5px; line-height: 1.5; word-break: break-word;
+    }
+    .sabot-msg.user {
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: #fff; align-self: flex-end; border-bottom-right-radius: 4px;
+    }
+    .sabot-msg.bot {
+      background: #f1f5f9; color: #1e293b;
+      align-self: flex-start; border-bottom-left-radius: 4px;
+    }
+    .sabot-msg.error { background: #fef2f2; color: #dc2626; font-size: 12px; }
+
+    #sabot-typing {
+      display: none; padding: 8px 14px; font-size: 12px; color: #94a3b8; flex-shrink: 0;
+    }
+    .sabot-typing-dots span {
+      display: inline-block; width: 6px; height: 6px; border-radius: 50%;
+      background: #94a3b8; margin: 0 2px; animation: sabotDot 1.2s infinite;
+    }
+    .sabot-typing-dots span:nth-child(2) { animation-delay: 0.2s; }
+    .sabot-typing-dots span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes sabotDot { 0%,80%,100%{transform:scale(0.6);opacity:0.4} 40%{transform:scale(1);opacity:1} }
+
+    .sabot-suggestions {
+      display: flex; flex-wrap: wrap; gap: 6px; padding: 0 12px 10px; flex-shrink: 0;
+    }
+    .sabot-sbtn {
+      background: #f0f9ff; border: 1px solid #bae6fd; color: #0369a1;
+      border-radius: 20px; padding: 5px 12px; font-size: 11.5px; cursor: pointer;
+      transition: all 0.15s; white-space: nowrap;
+    }
+    .sabot-sbtn:hover { background: #e0f2fe; border-color: #7dd3fc; }
+
+    .sabot-input-area {
+      display: flex; gap: 8px; padding: 10px 12px;
+      border-top: 1px solid #e2e8f0; flex-shrink: 0;
+      padding-bottom: max(10px, env(safe-area-inset-bottom));
+      position: sticky; bottom: 0; background: #fff;
+    }
+    #sabot-input {
+      flex: 1; border: 1.5px solid #e2e8f0; border-radius: 20px;
+      padding: 8px 14px; font-size: 13px; font-family: inherit; resize: none;
+      outline: none; max-height: 80px; overflow-y: auto;
+      transition: border-color 0.2s;
+    }
+    #sabot-input:focus { border-color: #0ea5e9; }
+    #sabot-send {
+      width: 36px; height: 36px; border-radius: 50%; border: none; cursor: pointer;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      color: #fff; display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0; transition: transform 0.15s; align-self: flex-end;
+    }
+    #sabot-send:hover { transform: scale(1.08); }
+    #sabot-send:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Sidebar SVG icons */
+    .nav-link .icon svg, .nav-link .icon { display:inline-flex; align-items:center; vertical-align:middle; }
+    .nav-link .icon svg { width:18px; height:18px; }
+    .sidebar-logo .logo-svg { width:32px; height:32px; }
   </style>
 </head>
 <body>
@@ -130,8 +172,22 @@
   <!-- Sidebar (desktop) -->
   <aside class="sidebar">
     <div class="sidebar-logo">
-      <h1>📊 SAPCPOS</h1>
-      <p>Academic Performance System</p>
+      <!-- Realistic chart/academic logo -->
+      <svg class="logo-svg" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="40" height="40" rx="10" fill="url(#logoGrad)"/>
+        <defs><linearGradient id="logoGrad" x1="0" y1="0" x2="40" y2="40" gradientUnits="userSpaceOnUse">
+          <stop offset="0%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#6366f1"/>
+        </linearGradient></defs>
+        <rect x="8" y="26" width="5" height="8" rx="1.5" fill="white" opacity="0.9"/>
+        <rect x="15" y="20" width="5" height="14" rx="1.5" fill="white"/>
+        <rect x="22" y="14" width="5" height="20" rx="1.5" fill="white" opacity="0.9"/>
+        <rect x="29" y="9" width="5" height="25" rx="1.5" fill="white" opacity="0.8"/>
+        <polyline points="10,24 17,18 24,12 31,7" stroke="rgba(255,255,255,0.6)" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <h1>SAPCPOS</h1>
+        <p>Academic Performance System</p>
+      </div>
     </div>
 
     <nav class="sidebar-nav">
@@ -139,58 +195,54 @@
         <div class="nav-section">Main</div>
         <a href="{{ url_for('admin.dashboard') }}"
            class="nav-link {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
-          <span class="icon">🏠</span> Dashboard
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg></span> Dashboard
         </a>
         <a href="{{ url_for('admin.students') }}"
            class="nav-link {% if 'student' in request.endpoint %}active{% endif %}">
-          <span class="icon">👥</span> Students
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg></span> Students
         </a>
         <a href="{{ url_for('admin.rankings') }}"
            class="nav-link {% if request.endpoint == 'admin.rankings' %}active{% endif %}">
-          <span class="icon">🏆</span> Rankings
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></span> Rankings
         </a>
         <a href="{{ url_for('admin.analytics') }}"
            class="nav-link {% if request.endpoint == 'admin.analytics' %}active{% endif %}">
-          <span class="icon">📈</span> Analytics
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></span> Analytics
         </a>
         <div class="nav-section">System</div>
         <a href="{{ url_for('admin.notifications') }}"
            class="nav-link {% if request.endpoint == 'admin.notifications' %}active{% endif %}">
-          <span class="icon">🔔</span> Notifications
-          {% if notif_count %}
-            <span class="notif-dot">{{ notif_count }}</span>
-          {% endif %}
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a2 2 0 002-2H8a2 2 0 002 2z"/></svg></span> Notifications
+          {% if notif_count %}<span class="notif-dot">{{ notif_count }}</span>{% endif %}
         </a>
         <a href="{{ url_for('admin.logs') }}"
            class="nav-link {% if request.endpoint == 'admin.logs' %}active{% endif %}">
-          <span class="icon">📋</span> Activity Logs
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 4a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg></span> Activity Logs
         </a>
 
       {% elif current_user.is_authenticated %}
         <div class="nav-section">My Dashboard</div>
         <a href="{{ url_for('student.dashboard') }}"
            class="nav-link {% if request.endpoint == 'student.dashboard' %}active{% endif %}">
-          <span class="icon">🏠</span> Dashboard
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg></span> Dashboard
         </a>
         <a href="{{ url_for('student.pathway') }}"
            class="nav-link {% if request.endpoint == 'student.pathway' %}active{% endif %}">
-          <span class="icon">🗺️</span> My Pathway
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg></span> My Pathway
         </a>
         <a href="{{ url_for('student.rankings') }}"
            class="nav-link {% if request.endpoint == 'student.rankings' %}active{% endif %}">
-          <span class="icon">🏆</span> Rankings
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></span> Rankings
         </a>
         <a href="{{ url_for('student.profile') }}"
            class="nav-link {% if request.endpoint == 'student.profile' %}active{% endif %}">
-          <span class="icon">👤</span> My Profile
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg></span> My Profile
         </a>
         <div class="nav-section">Alerts</div>
         <a href="{{ url_for('student.notifications') }}"
            class="nav-link {% if request.endpoint == 'student.notifications' %}active{% endif %}">
-          <span class="icon">🔔</span> Notifications
-          {% if notif_count %}
-            <span class="notif-dot">{{ notif_count }}</span>
-          {% endif %}
+          <span class="icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a2 2 0 002-2H8a2 2 0 002 2z"/></svg></span> Notifications
+          {% if notif_count %}<span class="notif-dot">{{ notif_count }}</span>{% endif %}
         </a>
       {% endif %}
     </nav>
@@ -205,7 +257,7 @@
           </div>
         </div>
         <a href="{{ url_for('auth.logout') }}" class="btn btn-ghost btn-sm w-full mt-12">
-          🚪 Logout
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:15px;height:15px;margin-right:6px;vertical-align:middle"><path fill-rule="evenodd" d="M3 3a1 1 0 011 1v12a1 1 0 11-2 0V4a1 1 0 011-1zm7.707 3.293a1 1 0 010 1.414L9.414 9H17a1 1 0 110 2H9.414l1.293 1.293a1 1 0 01-1.414 1.414l-3-3a1 1 0 010-1.414l3-3a1 1 0 011.414 0z" clip-rule="evenodd"/></svg> Logout
         </a>
       {% endif %}
     </div>
@@ -215,112 +267,278 @@
   <div class="main-content">
     <header class="topbar">
       <div class="d-flex align-center gap-8">
-        <button id="menu-toggle" class="btn btn-ghost btn-icon" style="display:none">☰</button>
+        <button id="menu-toggle" class="btn btn-ghost btn-icon" style="display:none">
+          <svg viewBox="0 0 20 20" fill="currentColor" style="width:20px;height:20px"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm0 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd"/></svg>
+        </button>
         <span class="topbar-title">{% block page_title %}{% endblock %}</span>
       </div>
-      <div class="topbar-actions">
-        {% block topbar_actions %}{% endblock %}
-      </div>
+      <div class="topbar-actions">{% block topbar_actions %}{% endblock %}</div>
     </header>
 
     <main class="page-body">
       {% with messages = get_flashed_messages(with_categories=true) %}
         {% for category, message in messages %}
           <div class="alert alert-{{ category }}" data-autohide>
-            {% if category == 'success' %}✅{% elif category == 'danger' %}❌{% elif category == 'warning' %}⚠️{% else %}ℹ️{% endif %}
+            {% if category == 'success' %}<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            {% elif category == 'danger' %}<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
+            {% elif category == 'warning' %}<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+            {% else %}<svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px;flex-shrink:0"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"/></svg>{% endif %}
             {{ message }}
           </div>
         {% endfor %}
       {% endwith %}
-
       {% block content %}{% endblock %}
     </main>
   </div>
 </div>
 
-<!-- ═══════════════════════════════════════════
-     MOBILE BOTTOM NAVIGATION BAR
-     Only visible on mobile / iOS (≤768px)
-═══════════════════════════════════════════ -->
+<!-- ═══════════════════════════ MOBILE BOTTOM NAV ═══════════════════════════ -->
 {% if current_user.is_authenticated %}
 <nav class="mobile-bottom-nav">
-
   {% if current_user.is_admin() %}
-    <!-- ADMIN bottom nav -->
-    <a href="{{ url_for('admin.dashboard') }}"
-       class="mobile-nav-item {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
-      <div class="mobile-nav-icon">🏠</div>
+    <a href="{{ url_for('admin.dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'admin.dashboard' %}active{% endif %}">
+      <div class="mobile-nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg></div>
       <span class="mobile-nav-label">Home</span>
     </a>
-
-    <a href="{{ url_for('admin.students') }}"
-       class="mobile-nav-item {% if 'student' in request.endpoint %}active{% endif %}">
-      <div class="mobile-nav-icon">👥</div>
+    <a href="{{ url_for('admin.students') }}" class="mobile-nav-item {% if 'student' in request.endpoint %}active{% endif %}">
+      <div class="mobile-nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"/></svg></div>
       <span class="mobile-nav-label">Students</span>
     </a>
-
-    <a href="{{ url_for('admin.rankings') }}"
-       class="mobile-nav-item {% if request.endpoint == 'admin.rankings' %}active{% endif %}">
-      <div class="mobile-nav-icon">🏆</div>
+    <a href="{{ url_for('admin.rankings') }}" class="mobile-nav-item {% if request.endpoint == 'admin.rankings' %}active{% endif %}">
+      <div class="mobile-nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
       <span class="mobile-nav-label">Rankings</span>
     </a>
-
-    <a href="{{ url_for('admin.analytics') }}"
-       class="mobile-nav-item {% if request.endpoint == 'admin.analytics' %}active{% endif %}">
-      <div class="mobile-nav-icon">📈</div>
+    <a href="{{ url_for('admin.analytics') }}" class="mobile-nav-item {% if request.endpoint == 'admin.analytics' %}active{% endif %}">
+      <div class="mobile-nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M2 11a1 1 0 011-1h2a1 1 0 011 1v5a1 1 0 01-1 1H3a1 1 0 01-1-1v-5zm6-4a1 1 0 011-1h2a1 1 0 011 1v9a1 1 0 01-1 1H9a1 1 0 01-1-1V7zm6-3a1 1 0 011-1h2a1 1 0 011 1v12a1 1 0 01-1 1h-2a1 1 0 01-1-1V4z"/></svg></div>
       <span class="mobile-nav-label">Analytics</span>
     </a>
-
-    <a href="{{ url_for('admin.notifications') }}"
-       class="mobile-nav-item {% if request.endpoint == 'admin.notifications' %}active{% endif %}">
+    <a href="{{ url_for('admin.notifications') }}" class="mobile-nav-item {% if request.endpoint == 'admin.notifications' %}active{% endif %}">
       <div class="mobile-nav-icon">
-        🔔
-        {% if notif_count %}
-          <span class="mobile-nav-badge">{{ notif_count }}</span>
-        {% endif %}
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a2 2 0 002-2H8a2 2 0 002 2z"/></svg>
+        {% if notif_count %}<span class="mobile-nav-badge">{{ notif_count }}</span>{% endif %}
       </div>
       <span class="mobile-nav-label">Alerts</span>
     </a>
-
   {% else %}
-    <!-- STUDENT bottom nav -->
-    <a href="{{ url_for('student.dashboard') }}"
-       class="mobile-nav-item {% if request.endpoint == 'student.dashboard' %}active{% endif %}">
-      <div class="mobile-nav-icon">🏠</div>
+    <a href="{{ url_for('student.dashboard') }}" class="mobile-nav-item {% if request.endpoint == 'student.dashboard' %}active{% endif %}">
+      <div class="mobile-nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h4a1 1 0 001-1v-3h2v3a1 1 0 001 1h4a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"/></svg></div>
       <span class="mobile-nav-label">Home</span>
     </a>
-
-    <a href="{{ url_for('student.pathway') }}"
-       class="mobile-nav-item {% if request.endpoint == 'student.pathway' %}active{% endif %}">
-      <div class="mobile-nav-icon">🗺️</div>
+    <a href="{{ url_for('student.pathway') }}" class="mobile-nav-item {% if request.endpoint == 'student.pathway' %}active{% endif %}">
+      <div class="mobile-nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M12.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-2.293-2.293a1 1 0 010-1.414z" clip-rule="evenodd"/></svg></div>
       <span class="mobile-nav-label">Pathway</span>
     </a>
-
-    <a href="{{ url_for('student.rankings') }}"
-       class="mobile-nav-item {% if request.endpoint == 'student.rankings' %}active{% endif %}">
-      <div class="mobile-nav-icon">🏆</div>
+    <a href="{{ url_for('student.rankings') }}" class="mobile-nav-item {% if request.endpoint == 'student.rankings' %}active{% endif %}">
+      <div class="mobile-nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
       <span class="mobile-nav-label">Rankings</span>
     </a>
-
-    <a href="{{ url_for('student.notifications') }}"
-       class="mobile-nav-item {% if request.endpoint == 'student.notifications' %}active{% endif %}">
+    <a href="{{ url_for('student.notifications') }}" class="mobile-nav-item {% if request.endpoint == 'student.notifications' %}active{% endif %}">
       <div class="mobile-nav-icon">
-        🔔
-        {% if notif_count %}
-          <span class="mobile-nav-badge">{{ notif_count }}</span>
-        {% endif %}
+        <svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 2a6 6 0 00-6 6v3.586l-.707.707A1 1 0 004 14h12a1 1 0 00.707-1.707L16 11.586V8a6 6 0 00-6-6zm0 16a2 2 0 002-2H8a2 2 0 002 2z"/></svg>
+        {% if notif_count %}<span class="mobile-nav-badge">{{ notif_count }}</span>{% endif %}
       </div>
       <span class="mobile-nav-label">Alerts</span>
     </a>
-
-    <a href="{{ url_for('student.profile') }}"
-       class="mobile-nav-item {% if request.endpoint == 'student.profile' %}active{% endif %}">
-      <div class="mobile-nav-icon">👤</div>
+    <a href="{{ url_for('student.profile') }}" class="mobile-nav-item {% if request.endpoint == 'student.profile' %}active{% endif %}">
+      <div class="mobile-nav-icon"><svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"/></svg></div>
       <span class="mobile-nav-label">Profile</span>
     </a>
   {% endif %}
-
 </nav>
+{% endif %}
+
+<!-- ═══════════════════════════ SABOT CHATBOT ═══════════════════════════════ -->
+{% if current_user.is_authenticated %}
+
+<!-- Launcher button -->
+<button id="sabot-launcher" onclick="sabotToggle()" title="Chat with SABot AI">
+  <svg viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg" width="30" height="30">
+    <line x1="27" y1="6" x2="27" y2="14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+    <circle cx="27" cy="4.5" r="3" fill="white"/>
+    <rect x="10" y="14" width="34" height="24" rx="7" fill="white" fill-opacity="0.95"/>
+    <rect x="16" y="21" width="8" height="7" rx="2" fill="#0ea5e9"/>
+    <circle cx="20" cy="24.5" r="2" fill="white"/>
+    <rect x="30" y="21" width="8" height="7" rx="2" fill="#6366f1"/>
+    <circle cx="34" cy="24.5" r="2" fill="white"/>
+    <rect x="18" y="31" width="18" height="3" rx="1.5" fill="#0ea5e9" fill-opacity="0.6"/>
+    <rect x="7" y="22" width="4" height="8" rx="2" fill="white" fill-opacity="0.7"/>
+    <rect x="43" y="22" width="4" height="8" rx="2" fill="white" fill-opacity="0.7"/>
+    <rect x="17" y="38" width="20" height="10" rx="4" fill="white" fill-opacity="0.75"/>
+    <circle cx="22" cy="43" r="2" fill="#0ea5e9" fill-opacity="0.7"/>
+    <circle cx="27" cy="43" r="2" fill="#6366f1" fill-opacity="0.7"/>
+    <circle cx="32" cy="43" r="2" fill="#0ea5e9" fill-opacity="0.7"/>
+  </svg>
+</button>
+
+<!-- Chat window -->
+<div id="sabot-window">
+  <div class="sabot-header">
+    <div class="sabot-header-avatar">
+      <svg viewBox="0 0 54 54" fill="none" xmlns="http://www.w3.org/2000/svg" width="24" height="24">
+        <line x1="27" y1="6" x2="27" y2="14" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="27" cy="4.5" r="3" fill="white"/>
+        <rect x="10" y="14" width="34" height="24" rx="7" fill="white" fill-opacity="0.95"/>
+        <rect x="16" y="21" width="8" height="7" rx="2" fill="#0ea5e9"/>
+        <circle cx="20" cy="24.5" r="2" fill="white"/>
+        <rect x="30" y="21" width="8" height="7" rx="2" fill="#6366f1"/>
+        <circle cx="34" cy="24.5" r="2" fill="white"/>
+        <rect x="18" y="31" width="18" height="3" rx="1.5" fill="#0ea5e9" fill-opacity="0.5"/>
+        <rect x="7" y="22" width="4" height="8" rx="2" fill="white" fill-opacity="0.7"/>
+        <rect x="43" y="22" width="4" height="8" rx="2" fill="white" fill-opacity="0.7"/>
+        <rect x="17" y="38" width="20" height="10" rx="4" fill="white" fill-opacity="0.7"/>
+        <circle cx="22" cy="43" r="2" fill="#0ea5e9" fill-opacity="0.6"/>
+        <circle cx="27" cy="43" r="2" fill="#6366f1" fill-opacity="0.6"/>
+        <circle cx="32" cy="43" r="2" fill="#0ea5e9" fill-opacity="0.6"/>
+      </svg>
+    </div>
+    <div class="sabot-header-info">
+      <h4>SABot</h4>
+      <p>AI Academic Assistant</p>
+    </div>
+    <button class="sabot-closebtn" onclick="sabotToggle()">✕</button>
+  </div>
+
+  <div class="sabot-messages" id="sabot-messages">
+    <div class="sabot-msg bot">Hi {{ current_user.full_name.split()[0] }}! 👋 I'm SABot, your SAPCPOS academic assistant. Ask me anything about your performance, pathway, or rankings!</div>
+  </div>
+
+  <div id="sabot-typing"><div class="sabot-typing-dots"><span></span><span></span><span></span></div></div>
+
+  <div class="sabot-suggestions" id="sabot-suggestions">
+    <button class="sabot-sbtn" onclick="sabotSuggest(this)">What is my GPA category?</button>
+    <button class="sabot-sbtn" onclick="sabotSuggest(this)">How are rankings computed?</button>
+    <button class="sabot-sbtn" onclick="sabotSuggest(this)">How can I improve my grade?</button>
+  </div>
+
+  <div class="sabot-input-area">
+    <textarea id="sabot-input" rows="1" placeholder="Ask SABot…"
+      onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sabotSend();}"></textarea>
+    <button id="sabot-send" onclick="sabotSend()">
+      <svg viewBox="0 0 20 20" fill="currentColor" style="width:16px;height:16px">
+        <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<script>
+(function(){
+  var isOpen = false;
+  var chatHistory = [];
+
+  window.sabotToggle = function(){
+    isOpen = !isOpen;
+    var w = document.getElementById('sabot-window');
+    if(isOpen){
+      w.classList.add('sabot-open');
+      document.body.classList.add('sabot-active');
+      var msgs = document.getElementById('sabot-messages');
+      setTimeout(function(){ msgs.scrollTop = msgs.scrollHeight; }, 50);
+      setTimeout(function(){ document.getElementById('sabot-input').focus(); }, 300);
+    } else {
+      w.classList.remove('sabot-open');
+      document.body.classList.remove('sabot-active');
+    }
+  };
+
+  window.sabotSuggest = function(btn){
+    document.getElementById('sabot-input').value = btn.textContent;
+    document.getElementById('sabot-suggestions').style.display = 'none';
+    sabotSend();
+  };
+
+  window.sabotSend = function(){
+    var inp = document.getElementById('sabot-input');
+    var msg = inp.value.trim();
+    if(!msg) return;
+    inp.value = ''; inp.style.height = 'auto';
+    addMsg('user', msg);
+    showTyping(true);
+    document.getElementById('sabot-send').disabled = true;
+    sabotFetch(msg, chatHistory, 0);
+  };
+
+  function sabotFetch(msg, history, attempt){
+    fetch('/ai/chat', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest'},
+      body: JSON.stringify({message: msg, history: history})
+    })
+    .then(function(r){
+      if(r.status === 429 && attempt < 2){
+        var delay = (attempt + 1) * 6000;
+        showTypingMsg('SABot is busy, retrying in ' + (delay/1000) + 's…');
+        setTimeout(function(){ sabotFetch(msg, history, attempt + 1); }, delay);
+        return null;
+      }
+      return r.json();
+    })
+    .then(function(d){
+      if(d === null) return;
+      showTyping(false);
+      document.getElementById('sabot-send').disabled = false;
+      if(d.reply){
+        addMsg('bot', d.reply);
+        chatHistory.push({role:'user', text:msg}, {role:'bot', text:d.reply});
+        if(chatHistory.length > 20) chatHistory = chatHistory.slice(-20);
+      } else {
+        addMsg('bot', '⚠️ ' + (d.error || 'Something went wrong. Please try again.'));
+      }
+    })
+    .catch(function(){
+      showTyping(false);
+      document.getElementById('sabot-send').disabled = false;
+      addMsg('bot', '⚠️ Network error. Please check your connection.');
+    });
+  }
+
+  function addMsg(role, text){
+    var c = document.getElementById('sabot-messages');
+    var d = document.createElement('div');
+    d.className = 'sabot-msg ' + role;
+    d.textContent = text;
+    c.appendChild(d);
+    c.scrollTop = c.scrollHeight;
+  }
+
+  function showTyping(show){
+    var t = document.getElementById('sabot-typing');
+    var c = document.getElementById('sabot-messages');
+    t.style.display = show ? 'flex' : 'none';
+    if(show) c.scrollTop = c.scrollHeight;
+  }
+
+  function showTypingMsg(text){
+    var t = document.getElementById('sabot-typing');
+    t.innerHTML = '<span style="font-size:12px;color:#94a3b8;">' + text + '</span>';
+    t.style.display = 'block';
+  }
+
+  var inp = document.getElementById('sabot-input');
+  if(inp){ inp.addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,80)+'px'; }); }
+
+  // iOS/Android keyboard resize handling
+  if(window.visualViewport){
+    window.visualViewport.addEventListener('resize', function(){
+      var w = document.getElementById('sabot-window');
+      if(!w || !w.classList.contains('sabot-open')) return;
+      var vv = window.visualViewport;
+      var kbHeight = window.innerHeight - vv.height - vv.offsetTop;
+      if(kbHeight > 50){
+        w.style.height = vv.height + 'px';
+        w.style.top    = vv.offsetTop + 'px';
+        w.style.bottom = 'auto';
+      } else {
+        w.style.height = '';
+        w.style.top    = '';
+        w.style.bottom = '';
+      }
+      var msgs = document.getElementById('sabot-messages');
+      if(msgs) msgs.scrollTop = msgs.scrollHeight;
+    });
+  }
+})();
+</script>
 {% endif %}
 
 <script src="{{ url_for('static', filename='js/main.js') }}"></script>

@@ -89,10 +89,12 @@ def create_app():
     from app.controllers.auth_controller    import auth_bp
     from app.controllers.admin_controller   import admin_bp
     from app.controllers.student_controller import student_bp
+    from app.controllers.ai_controller      import ai_bp
 
     app.register_blueprint(auth_bp,    url_prefix='/auth')
     app.register_blueprint(admin_bp,   url_prefix='/admin')
     app.register_blueprint(student_bp, url_prefix='/student')
+    app.register_blueprint(ai_bp,      url_prefix='/ai')
 
     # ── Jinja2 globals ────────────────────────────────────────────────────────
     app.jinja_env.globals['enumerate'] = enumerate
