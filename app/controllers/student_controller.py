@@ -88,6 +88,48 @@ def profile():
         notif_count=_notif_count())
 
 
+# ── Edit Profile ──────────────────────────────────────────────────────────────
+
+@student_bp.route('/edit-profile', methods=['GET', 'POST'])
+@login_required
+def edit_profile():
+    if current_user.is_admin():
+        return redirect(url_for('admin.dashboard'))
+
+    if request.method == 'POST':
+        full_name = request.form.get('full_name', '').strip()
+        email = request.form.get('email', '').strip()
+        new_password = request.form.get('new_password', '').strip()
+        confirm_password = request.form.get('confirm_password', '').strip()
+
+        if not full_name or not email:
+            flash('Name and email are required.', 'danger')
+            return redirect(url_for('student.edit_profile'))
+
+        from app.models.user import User
+        existing = User.query.filter(User.email == email, User.id != current_user.id).first()
+        if existing:
+            flash('Email is already in use by another account.', 'danger')
+            return redirect(url_for('student.edit_profile'))
+
+        current_user.full_name = full_name
+        current_user.email = email
+
+        if new_password:
+            if new_password != confirm_password:
+                flash('Passwords do not match.', 'danger')
+                return redirect(url_for('student.edit_profile'))
+            from werkzeug.security import generate_password_hash
+            current_user.password_hash = generate_password_hash(new_password)
+
+        db.session.commit()
+        log_activity(current_user.id, 'UPDATE_PROFILE', 'Updated profile info')
+        flash('Profile updated successfully!', 'success')
+        return redirect(url_for('student.profile'))
+
+    return render_template('student/edit_profile.html', notif_count=_notif_count())
+
+
 # ── Pathway ───────────────────────────────────────────────────────────────────
 
 @student_bp.route('/pathway')
