@@ -219,21 +219,39 @@ def delete_student(student_id):
     sid     = student.student_id
     uid     = student.user_id
 
-    # Nullify the FK first so Turso does not choke on an implicit UPDATE
-    # before the DELETE (its HTTP API rejects the executemany cascade).
+    # Turso HTTP rejects SQLAlchemy executemany (batch UPDATE/DELETE that
+    # fires implicitly when deleting rows with FK relationships). Fix: use
+    # raw SQL DELETEs in the correct FK order so no ORM cascade is triggered.
     if uid:
-        student.user_id = None
+        # 1. Hard-delete child rows that reference users.id
+        db.session.execute(
+            db.text('DELETE FROM notifications WHERE user_id = :uid'), {'uid': uid}
+        )
+        db.session.execute(
+            db.text('DELETE FROM activity_logs WHERE user_id = :uid'), {'uid': uid}
+        )
         db.session.flush()
 
-    db.session.delete(student)
+        # 2. Nullify the student -> user FK so users row can be deleted
+        db.session.execute(
+            db.text('UPDATE students SET user_id = NULL WHERE id = :sid'), {'sid': student.id}
+        )
+        db.session.flush()
+
+    # 3. Delete the student row
+    db.session.execute(
+        db.text('DELETE FROM students WHERE id = :sid'), {'sid': student.id}
+    )
     db.session.flush()
 
+    # 4. Delete the linked user account
     if uid:
-        user = User.query.get(uid)
-        if user:
-            db.session.delete(user)
+        db.session.execute(
+            db.text('DELETE FROM users WHERE id = :uid'), {'uid': uid}
+        )
 
     db.session.commit()
+    db.session.expire_all()
     log_activity(current_user.id, 'DELETE_STUDENT', f'{sid} — {name}')
     flash(f'Student {name} deleted.', 'success')
     return redirect(url_for('admin.students'))
