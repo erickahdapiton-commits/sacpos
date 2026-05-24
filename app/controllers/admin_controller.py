@@ -215,13 +215,24 @@ def edit_student(student_id):
 @admin_required
 def delete_student(student_id):
     student = Student.query.get_or_404(student_id)
-    name = student.full_name
-    sid  = student.student_id
-    if student.user_id:
-        user = User.query.get(student.user_id)
+    name    = student.full_name
+    sid     = student.student_id
+    uid     = student.user_id
+
+    # Nullify the FK first so Turso does not choke on an implicit UPDATE
+    # before the DELETE (its HTTP API rejects the executemany cascade).
+    if uid:
+        student.user_id = None
+        db.session.flush()
+
+    db.session.delete(student)
+    db.session.flush()
+
+    if uid:
+        user = User.query.get(uid)
         if user:
             db.session.delete(user)
-    db.session.delete(student)
+
     db.session.commit()
     log_activity(current_user.id, 'DELETE_STUDENT', f'{sid} — {name}')
     flash(f'Student {name} deleted.', 'success')
