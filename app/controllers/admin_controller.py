@@ -111,6 +111,10 @@ def add_student():
             flash('Student ID already exists.', 'danger')
             return render_template('admin/add_student.html')
 
+        if not course:
+            flash('Course / Program is required.', 'danger')
+            return render_template('admin/add_student.html')
+
         classification = classify_student(gpa, attendance, failures, trend)
 
         student = Student(
@@ -154,6 +158,13 @@ def edit_student(student_id):
         student.email      = request.form.get('email', student.email).strip().lower()
         student.course     = request.form.get('course', '').strip()
         student.year_level = int(request.form.get('year_level', 1))
+
+        if not student.course:
+            flash('Course / Program is required.', 'danger')
+            scores = student.get_subject_scores()
+            notifs = Notification.query.filter_by(user_id=current_user.id, is_read=False).count()
+            return render_template('admin/edit_student.html',
+                                   student=student, scores=scores, notif_count=notifs)
         student.gpa        = float(request.form.get('gpa', student.gpa))
         student.attendance = float(request.form.get('attendance', student.attendance))
         student.failures   = int(request.form.get('failures', student.failures))
